@@ -2,38 +2,41 @@
 title: "Conceptual Model"
 author: "Seleni Cruz and Juliette Verstaen"
 date: "April 29, 2019"
-output: word_document
+bibliography: ["references.bib"]
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-library(tidyverse)
-library(knitr)
-
 ```
 
-##Recovery times and syncronized spatial management of Fisheries 
+```{r include=FALSE, message=FALSE}
+library(tidyverse)
+library(citr)
+```
+
+##Recovery times and spatial management of Fisheries 
 #### Motivation 
 
-Marine reserves are used widely to meet a myriad of objectives including biodiversity protection and fisheries management. One advantage of marine reserves over traditional fishery management is that reserves protect not only target species but also habitat and non-target species (Micheli et al., 2004). However, marine reserve theory has largely focused on single species recovery. Few studies have focused on the effects of marine reserves on multi-species interactions and how these interactions can affect population recovery time and maximize fishery benefits (Baskett, Micheli & Levin, 2007; Shamhouri et al., 2017). We chose to focus on predator-prey interaction as "fishing down the foodweb" is a common phenomnenon in fisheries. As abundances of organisms in higher tropic levels are reduced (in many cases due to fishing), effort is then focused on lower trophic levels gradually moving down the food web (Pauly et al. 1998). 
+Marine reserves are used widely to meet a myriad of objectives including biodiversity protection and fisheries management. One advantage of marine reserves over traditional fishery management is that reserves protect not only target species but also habitat and non-target species [@micheliINCLUDINGSPECIESINTERACTIONS2004]. However, marine reserve theory has largely focused on single species recovery. Few studies have focused on the effects of marine reserves on multi-species interactions and how these interactions can affect population recovery time and maximize fishery benefits [@baskettDesigningMarineReserves2007; @samhouriRapidDirectRecoveries2017]. We chose to focus on predator-prey interaction as "fishing down the foodweb" is a common phenomenon in fisheries. As abundances of organisms in higher tropic levels are reduced (in many cases due to fishing), effort is then focused on lower trophic levels gradually moving down the food web [@paulyFishingMarineFood1998]. 
 
-*Our guiding question is:* How does taking predator-prey interactions into account in marine reserve thoery influence their recovery times and thus fishery benefits? How do these results compare to other single species management measures (such as single species closures)? We re-create models presented in Samhouri et al. 2017 as a basis and introduce marine reserves as an additional management intervention.  
+*Our guiding question:* How does taking predator-prey interactions into account in marine reserve theory influence their recovery times and thus fishery benefits? How do these results compare to other single species management measures (such as single species closures)? We re-create models presented in @samhouriRapidDirectRecoveries2017 as a basis and introduce marine reserves as an additional management intervention.  
 
-*Our main goal:* Identifying how biomass of predators and prey will react to managment interventions in the form of various sizes of marine reserves. The output will include a table and graphs with prey abdunance (#individuals), predator abundance (# individuals), size of reserve (% of total area), and time (year).
+*Our main goal:* To identifying how biomass of predators and prey will react to management interventions in the form of various sizes of marine reserves and single speices closures. The output will include a table and graphs with prey abundance (# of individuals), predator abundance (# of individuals), size of reserve (% of total area), and time (year).
 
-*Target audience:* We hope this model will be beneficial to resource mangaers and planners who use marine reserves with the main goal of multiple fisheries recovery.
+*Target audience:* This model will be beneficial to resource managers and planners who use marine reserves with the main goal of multi-species fisheries recovery.
 
 #### Sub models 
-Submodels will include: 
-1. Predator-prey model: To simulate interaction between predator and prey, including growth, harvest and competition among both species. This model will be lumped, dynamic, stochastic and abstract. Inputs will include biological parameters such as intrinsic growth rate, carrying capcity and competition coefficients, as well as, harvest rates. The model will utliize generalist predator-prey variables, thus sensitivity analysis will be conducted for intrinsic growth rates.
+ 
+##### 1. Predator-prey model 
+To simulate interaction between predator and prey, including growth, harvest and competition among species. This model will be dynamic, stochastic and abstract. Inputs will include biological parameters such as intrinsic growth rate, carrying capacity and competition coefficients, as well as, harvest rates (Table 1). Outputs will be population sizes in each year and harvest of predator and prey. The model will utilize generalist predator-prey variables, thus sensitivity analysis will be conducted for intrinsic growth rates.
 
-Interactions of generalist predator prey dynamics are mathematicaly described as follows: 
+Interactions of generalist predator prey dynamics are mathematically described as follows [@samhouriRapidDirectRecoveries2017]: 
 
 $$\frac{dX}{dt}=r_XX(1-\frac{X}{K_X})- a_XPX-h_XX$$
 $$\frac{dP}{dt}=P[c(a_XX + a_XY)-d_P](1-\frac{P}{K_P})- h_PP$$
 
-Here, X and P denote prey and predator abundances in number of individuals, $r_X$ is the prey’s intrinsic per-capita growth rate (units: yr−1), $K_X$ is the prey’s logistic growth carrying capacity (units: number of individuals), $d_P$ is the predator’s per capita mortality rate (units: yr−1) and $K_P$ is the predator’s carrying capacity (units: number of individuals) reflecting limiting factors other than prey availability, such as habitat. The predator feeds on prey X and Y with linear type I functional responses at per-capita rates $a_X$ and $a_Y$, respectively (units: number of individuals−1 × yr−1), the relative magnitude of which reflects its preference for the two prey, and converts these to predator biomass at rate c (units: prey per predator). The predator and focal prey are harvested at constant per-capita rates, $h_P$ and $h_X$ (units: yr−1). Adopted from Samhouri et al., 2017.
 
 ```{r, echo= FALSE}
 
@@ -46,21 +49,42 @@ Units <- list("# individuals", "# individuals", "# individuals", "y^-1", "y^-1",
 parameters <- cbind(Varible, Description, Units) %>%
   data.frame()
 
-kable(parameters, align= 'l', caption= "Table 1. List of Parameters")
+knitr::kable(parameters, align= 'l', caption= "Table 1. List of Parameters")
 
 ```
 
 
 
 
-2. MPA model - A patch model to simulate predator-prey interactions given spatial closures. Space will be represented by a series of vectors. 
+#####2. Marine reserve model
+A patch model to simulate predator-prey interactions given spatial closures. Space will be represented by a series of vectors. Sensitivity analysis will be conducted on the size of the closure, represented by number of patches closed where $h_X$ and $h_P$ = 0. The model will be spatial, static, stochastic and abstract. For example a spatial closure of 100% of patches would result in $h_X$ and $h_P$ = 0.
 
-3. Economic Model 
+#####3. Economic Model 
+To generate net present value generated by harvest of predator and prey. Inputs to this model will include price of species ($/individual), amount harvested (# of individuals), discount rate (%) and time (years). The model will be deterministic.
 
-4. Wrapper of these three models
+Net present value (NPV) of harvest from predator and prey will be calculated using the following equation:
+
+$$ NPV = \frac{PH}{(1+D)^t} $$
+Where P is the market price, H is harvest, D is the discount rate and t represent time in years.
+
+##### 4. Wrapper of these three models 
+A wrapper function will be used to simulate predator-prey dynamics given the marine reserve model implementation and calculate economic returns. The function will also output relevant graphs over projected time. 
+
+Model simulations will follow the following steps:  
+  1. Allow the system to run until equilibrium with no intervention  
+  2. Simulate trophic downgrading by harvesting the predator until equilibrium and then harvesting the prey until a new equilibrium is reached.   
+  3. Implement one of the following management strategies:   
+  i.) Harvest of both species is reduced due to marine reserve implementation at various sizes, where a marine reserve of 100% of the area results in harvesting of both species be equal to 0 and thus stopped completely.   
+  ii.) Harvest of predator stops (i.e. $h_P$ = 0) until new equilibrium is reached, and then harvest of prey stops (i.e. $h_X$ = 0)  
+  iii.)Harvest of prey stops (i.e. $h_X$ = 0) until new equilibrium is reached, and then harvest of predator stops (i.e. $h_P$ = 0)
+
+#### Conceptual model  
+
+```{r message=FALSE, echo=FALSE, out.width="400px", out.height="400px"}
+knitr::include_graphics("model.png")
+```
+
+#### References 
 
 
-1. Identify the characteristics of submodes that you will use - spatial or lumped, dynamic or static, deterministic or stochastic, physically based/abstract?
-2. Identify the goal of your model  - what is the question that it will be used to answer; for which types of users
-3. Design a figure to illustrate your conceptual model
-4. Determine the inputs, outputs that will be used for each submodes
+
