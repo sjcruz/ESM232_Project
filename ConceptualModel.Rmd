@@ -2,7 +2,7 @@
 title: "Conceptual Model"
 author: "Seleni Cruz and Juliette Verstaen"
 date: "April 29, 2019"
-output: word_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -26,27 +26,27 @@ Marine reserves are used widely to meet a myriad of objectives including biodive
 
 #### Sub models 
 Submodels will include: 
-1. Predator-prey model: To simulate interaction between predator and prey, including growth, harvest and competition among both species. This model will be lumped, dynamic, stochastic and abstract. Inputs will include biological parameters such as intrinsic growth rate, carrying capcity and competition coefficients, as well as, harvest rates. The model will utliize generalist predator-prey variables, thus sensitivity analysis will be conducted for intrinsic growth rates.
+1. Predator-prey model: To simulate interaction between predator and prey, including growth, harvest and competition among both species. This model will be lumped, dynamic, stochastic and abstract. Inputs will include biological parameters such as intrinsic growth rate, carrying capcity and competition coefficients, as well as, harvest rates. The model will utliize generalist predator-prey variables, thus sensitivity analysis will be conducted for intrinsic growth rates and the competition parameter of the non-dynamic prey species (Y).
 
 Interactions of generalist predator prey dynamics are mathematicaly described as follows: 
 
 $$\frac{dX}{dt}=r_XX(1-\frac{X}{K_X})- a_XPX-h_XX$$
 $$\frac{dP}{dt}=P[c(a_XX + a_XY)-d_P](1-\frac{P}{K_P})- h_PP$$
 
-Here, X and P denote prey and predator abundances in number of individuals, $r_X$ is the prey’s intrinsic per-capita growth rate (units: yr−1), $K_X$ is the prey’s logistic growth carrying capacity (units: number of individuals), $d_P$ is the predator’s per capita mortality rate (units: yr−1) and $K_P$ is the predator’s carrying capacity (units: number of individuals) reflecting limiting factors other than prey availability, such as habitat. The predator feeds on prey X and Y with linear type I functional responses at per-capita rates $a_X$ and $a_Y$, respectively (units: number of individuals−1 × yr−1), the relative magnitude of which reflects its preference for the two prey, and converts these to predator biomass at rate c (units: prey per predator). The predator and focal prey are harvested at constant per-capita rates, $h_P$ and $h_X$ (units: yr−1). Adopted from Samhouri et al., 2017.
+
 
 ```{r, echo= FALSE}
 
-Varible <- list("P", "X", "Y", "rx", "dp", "kp", "ax", "ay", "hp", "hx")
+Varible <- list("P", "X", "Y", "rx", "dp", "kp", "kx", "ax", "ay", "hp", "hx", "c")
 
-Description <- list("Predator", "Focal prey", "Non-dynamic prey", " Growth rate prey", "Predator mortality rate", "Predator carrying capacity", "Predation rate on focal prey", "Predation rate on non-dynamic prey", "Predator harvest rate", "Focal prey harvest rate") 
+Description <- list("Predator", "Focal prey", "Non-dynamic prey", " Growth rate prey", "Predator mortality rate", "Predator carrying capacity", "Prey carrying capacity", "Predation rate on focal prey", "Predation rate on non-dynamic prey", "Predator harvest rate", "Focal prey harvest rate", "Predator conversion rate of prey") 
              
-Units <- list("# individuals", "# individuals", "# individuals", "y^-1", "y^-1", "# individuals", "# individuals^-1*y^-1", "# individuals^-1*y^-1","y^-1", "y^-1"  )
+Units <- list("# individuals", "# individuals", "# individuals", "y^-1", "y^-1", "# individuals",  "# individuals", "# individuals^-1*y^-1", "# individuals^-1*y^-1","y^-1", "y^-1", "prey/predator"  )
 
 parameters <- cbind(Varible, Description, Units) %>%
   data.frame()
 
-kable(parameters, align= 'l', caption= "Table 1. List of Parameters")
+kable(parameters, align= 'l', caption= "Table 1. List of Parameters for Predator-Prey Model")
 
 ```
 
@@ -55,7 +55,7 @@ kable(parameters, align= 'l', caption= "Table 1. List of Parameters")
 
 2. MPA model - A patch model to simulate predator-prey interactions given spatial closures. Space will be represented by a series of vectors. 
 
-3. Economic Model 
+3. Economic Model:  
 
 4. Wrapper of these three models
 
