@@ -21,11 +21,17 @@ library(citr)
 
 Marine reserves are used widely to meet a myriad of objectives including biodiversity protection and fisheries management. One advantage of marine reserves over traditional fishery management is that reserves protect not only target species but also habitat and non-target species [@micheliINCLUDINGSPECIESINTERACTIONS2004]. However, marine reserve theory has largely focused on single species recovery. Few studies have focused on the effects of marine reserves on multi-species interactions and how these interactions can affect population recovery time and maximize fishery benefits [@baskettDesigningMarineReserves2007; @samhouriRapidDirectRecoveries2017]. We chose to focus on predator-prey interaction as "fishing down the foodweb" is a common phenomenon in fisheries. As abundances of organisms in higher tropic levels are reduced (in many cases due to fishing), effort is then focused on lower trophic levels gradually moving down the food web [@paulyFishingMarineFood1998]. 
 
-*Our guiding question:* How does taking predator-prey interactions into account in marine reserve theory influence their recovery times and thus fishery benefits? How do these results compare to other single species management measures (such as single species closures)? We re-create models presented in @samhouriRapidDirectRecoveries2017 as a basis and introduce marine reserves as an additional management intervention.  
+*Our guiding question:*
 
-*Our main goal:* To identifying how biomass of predators and prey will react to management interventions in the form of various sizes of marine reserves and single speices closures. The output will include a table and graphs with prey abundance (# of individuals), predator abundance (# of individuals), size of reserve (% of total area), and time (year).
+How does taking predator-prey interactions into account in marine reserve theory influence their recovery times and thus fishery benefits? How do these results compare to other single species management measures (such as single species closures)? We re-create models presented in @samhouriRapidDirectRecoveries2017 as a basis and introduce marine reserves as an additional management intervention.  
 
-*Target audience:* This model will be beneficial to resource managers and planners who use marine reserves with the main goal of multi-species fisheries recovery.
+*Our main goal:* 
+
+To identifying how biomass of predators and prey will react to management interventions in the form of various sizes of marine reserves and single speices closures. The output will include a table and graphs with prey abundance (# of individuals), predator abundance (# of individuals), managment intervention (change in harvest rate), and time (year).
+
+*Target audience:* 
+
+This model will be beneficial to resource managers and planners who use marine reserves with the main goal of multi-species fisheries recovery.
 
 #### Sub models 
 ##### 1. Predator-prey model 
@@ -54,7 +60,7 @@ Units <- list("# individuals", "# individuals", "# individuals", "y^-1", "y^-1",
 parameters <- cbind(Varible, Description, Units) %>%
   data.frame()
 
-knitr::kable(parameters, align= 'l', caption= "Table 1. List of Parameters for Predator-Prey Model")
+knitr::kable(parameters, align= 'l', caption= "List of parameters for predator-prey model")
 ```
 
 
@@ -79,7 +85,8 @@ Where P is the market price, H is harvest, D is the discount rate and t represen
 ##### 4. Wrapper of these three models 
 A wrapper function will be used to simulate predator-prey dynamics given the marine reserve model implementation and calculate economic returns. The function will also output relevant graphs over projected time. 
 
-Model simulations will follow the following steps:  
+**Model simulations will follow the following steps:** 
+
   1. Allow the system to run until equilibrium with no intervention  
   2. Simulate trophic downgrading by harvesting the predator until equilibrium and then harvesting the prey until a new equilibrium is reached.   
   3. Implement one of the following management strategies:   
