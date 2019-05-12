@@ -1,0 +1,52 @@
+---
+title: "Final Model Project"
+author: "Juliette Verstaen and Seleni Cruz"
+date: "5/12/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(magrittr)
+library(tidyverse)
+library(deSolve)
+library(dplyr)
+
+```
+
+Run Model to Equilibrium
+```{r}
+
+# First call of the model to reach equilibrium
+start <- wrapper_model(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25)
+
+# Extract final conditions and start trophic downgrading
+c(X1, P1) %<-%  extract_state_vars(start)
+harvest_P <- wrapper_model(hx = 0, t0 = 30, t1 = 70, X0 = X1, P0 = P1)
+
+# Extract final conditions and start fishing for prey too
+c(X2, P2) %<-% extract_state_vars(harvest_P)
+harvest_X <- wrapper_model(t0 = 70, t1 = 120, X0 = X2, P0 = P2)
+
+```
+
+Syncronous Recovery
+What about happen if fishing was completly halted
+```{r}
+
+# Stop fishing and let both species recover
+c(X3, P3) %<-% extract_state_vars(harvest_X)
+stop_harvest <- run_model(hx = 0, hp = 0, t0 = 120, t1 = 200, X0 = X3, P0 = P3)
+# create ggplot object
+both <- rbind(start, harvest_P, harvest_X, stop_harvest) %>% ggplot(aes(x = Time, y = Abundance)) +
+geom_line(aes(color = Organism), size = 1) + scale_color_brewer(palette = "Set1") + theme(legend.position = "none")
+
+```
+
+
+
+

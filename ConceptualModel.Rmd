@@ -27,7 +27,7 @@ How does taking predator-prey interactions into account in marine reserve theory
 
 *Our main goal:* 
 
-To identifying how biomass of predators and prey will react to management interventions in the form of various sizes of marine reserves and single speices closures. The output will include a table and graphs with prey abundance (# of individuals), predator abundance (# of individuals), managment intervention (change in harvest rate), and time (year).
+To identifying how biomass of predators and prey will react to management interventions in the form of various sizes of marine reserves and single species closures. The output will include a table and graphs with prey abundance (# of individuals), predator abundance (# of individuals), managment intervention (change in harvest rate), and time (year).
 
 *Target audience:* 
 
