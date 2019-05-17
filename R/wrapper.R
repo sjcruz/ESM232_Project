@@ -16,7 +16,7 @@ wrapper_model <-
     ### Define time
     time <- seq(t0, t1, by = 0.1)
     
-
+    
 lsoda(y = values, times = time, func = pred_prey, parms = pars) %>% 
   as.data.frame() %>%
   magrittr::set_colnames(value = c("Time", "X", "P")) %>% 

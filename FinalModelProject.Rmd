@@ -21,6 +21,8 @@ library(dplyr)
 Run Model to Equilibrium
 ```{r}
 
+source("wrapper.R")
+source("pred_prey.R")
 # First call of the model to reach equilibrium
 start <- wrapper_model(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25)
 
