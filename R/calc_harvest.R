@@ -8,7 +8,6 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-
 calc.harvest.vec <- function(harvest, ncells, MPA.width)  {
   harvest.vec <- vector(length=ncells) #create vector to store harvest rates in each cell hence the the length is ncells 
   harvest.vec[] <- harvest      
@@ -18,6 +17,7 @@ calc.harvest.vec <- function(harvest, ncells, MPA.width)  {
     harvest.vec[MPA.begin:MPA.end] <- 0        
   }
   return(harvest.vec)
+
 }
 
 

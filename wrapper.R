@@ -7,19 +7,16 @@
 
 wrapper_model <- 
   
-  function(rx = 1, Kx = 100, ax = 0.03, hx, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, hp,   t0 = 0, t1 = 40, X0, P0)
+  function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, hp = 0.32,   t0 = 0, t1 = 40, X0, P0)
     
-    { pars <- c(rx, Kx, ax, c, ay, dp, Kp)
-    
-    ### Call to MPA function to determine harvest rates for prey and predator
-    
+    { pars <- c(rx, Kx, ax, hx, c, ay, dp, Kp, hp)
     
     ### Define values
     values <- c(X0, P0) 
     ### Define time
     time <- seq(t0, t1, by = 0.1)
     
-
+    
 lsoda(y = values, times = time, func = pred_prey, parms = pars) %>% 
   as.data.frame() %>%
   magrittr::set_colnames(value = c("Time", "X", "P")) %>% 

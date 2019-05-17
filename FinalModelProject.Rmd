@@ -15,14 +15,17 @@ library(magrittr)
 library(tidyverse)
 library(deSolve)
 library(dplyr)
+library(zeallot)
 
 ```
 
 Run Model to Equilibrium
 ```{r}
 
-source("wrapper.R")
-source("pred_prey.R")
+source("R/wrapper.R")
+source("R/predprey.R")
+source("R/extract.R")
+
 # First call of the model to reach equilibrium
 start <- wrapper_model(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25)
 
@@ -42,10 +45,13 @@ What about happen if fishing was completly halted
 
 # Stop fishing and let both species recover
 c(X3, P3) %<-% extract_state_vars(harvest_X)
-stop_harvest <- run_model(hx = 0, hp = 0, t0 = 120, t1 = 200, X0 = X3, P0 = P3)
+
+stop_harvest <- wrapper_model(hx = 0, hp = 0, t0 = 120, t1 = 200, X0 = X3, P0 = P3)
 # create ggplot object
 both <- rbind(start, harvest_P, harvest_X, stop_harvest) %>% ggplot(aes(x = Time, y = Abundance)) +
 geom_line(aes(color = Organism), size = 1) + scale_color_brewer(palette = "Set1") + theme(legend.position = "none")
+
+both
 
 ```
 
