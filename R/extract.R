@@ -1,6 +1,6 @@
 #' Extracting Function
 #'
-#' Allows user to extract the last abundance values or focal prey and predator
+#' Allows user to extract the last abundance values of focal prey and predator
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return vector of last abundance values or focal prey and predator
 
