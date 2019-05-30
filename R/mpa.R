@@ -1,7 +1,9 @@
 
 
-MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, hp = 0.32, t0 = 0, t1 = 40, X1, P1, mrate_X = 0.3, mrate_P = 0.5, ncells=10, MPA_width=4)
+MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, hp = 0.32, t0 = 0, t1 = 40, X1, P1, mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=4)
   {
+  
+  ### add in a pseudo sentivity analysis: 3 sizes: 10, 20, 30
   
 # note, the calc harvest function returns both x and p numbers in one list, need to extract to two
   harvest_all <- calc_harvest(hx=hx, hp=hp, ncells=ncells, MPA_width=MPA_width)

@@ -76,13 +76,20 @@ c(X1, P1) %<-%  extract_state_vars(start)
 
 ```
 
-Issues:
+goliath grouper, yellow snapper (main prey), parrotfish (subprey) 
 
+Issues:
 1. when to loop for the Mpa movement (in the mpa function one or the wrapper)
 2. have two mrates for the prey and predator, need to figure out what to do with that
 
 Things to rememeber/clean up:
 
 1. some things named as vectors when lists, make sure to go through and clean it all up to make it understandable
+2. goliah grouper growth rate (c) = 0.2 +- 0.03
+3. sensitiy analysis on: c, r, and hx, hp
+4. movement = 0.5 for both
+
+Sensitivity Analysis:
+
 
 
