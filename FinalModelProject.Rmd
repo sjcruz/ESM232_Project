@@ -65,12 +65,49 @@ source("R/predprey.R")
 source("R/extract.R")
 source("R/calc_harvest.R")
 source("R/mpa.R")
+source("R/wrapperTEST.R")
 
 # First call of the model to reach equilibrium
 start <- wrapper_model(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25)
 
 # Extract final conditions 
 c(X1, P1) %<-%  extract_state_vars(start)
+
+
+testmpa <- wrapper_modelTEST(t0=0, t1 = 30, X0=X1, P0=P1)
+
+
+
+
+
+
+
+rx = 1
+Kx = 100
+ax = 0.03
+hx = 0.65
+c = 0.05
+ay = 0.03
+dp = 0.25
+Kp = 25
+hp = 0.32
+t0 = 0
+t1 = 40
+
+pars <- c(rx, Kx, ax, hx, c, ay, dp, Kp, hp)
+values <- c(X1, P1) 
+time <- seq(t0, t1, by = 0.1)
+
+surplus <- pred_prey(pars = pars, values= values, t=time) %>%
+  extract2(1)
+
+surplusX <- surplus[1]
+surplusP <- surplus[2]
+  
+  
+  catchesX<- harvest_mpa_hx*popX
+  catchesP<- harvest_mpa_hp*popP
+
 
 
 

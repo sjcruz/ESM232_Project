@@ -1,7 +1,7 @@
 
 
-MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, hp = 0.32, t0 = 0, t1 = 40, X1, P1, mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=4)
-  {
+MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65, hp = 0.32, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=4)
+    {
   
   ### add in a pseudo sentivity analysis: 3 sizes: 10, 20, 30
   
@@ -35,22 +35,31 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65, c = 0.05, ay = 0.0
   arrivingX<-0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
   arrivingP<-0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
 
-  ######################################
-  ######################################  
   #surplus production from the predator prey function
-somehow here bring in the last numbers from the p and x populations which will loop somewhere, probably the wrapper
-  surplus X
-  surplus P
+
+  pars <- c(rx, Kx, ax, hx,c, ay, dp,hp, Kp)
+  
+  ### Define values
+  values <- c(X0, P0) 
+  
+  surplus <- pred_prey(pars = pars, values= values) %>%
+    extract2(1)
+  
+  surplusX <- surplus[1]
+  surplusP <- surplus[2]
   
   #catches = harvest rate in each cell times the population size 
   #basically how much are we catching at each time step
-  catches<- u.vec*pop
+  
+  catchesX<- harvest_vec_X*popX
+  catchesP<- harvest_vec_P*popP
   
   
   #Now that we caught some fish and some migrated we update the population numbers
-  pop<-pop+surplus-catches- leaving+ arriving
+  popX <- popX + surplusX - catchesX - leavingX + arrivingX
+  popP <- popP + surplusP - catchesP - leavingP + arrivingP
   
-  
+  return(list(c(popX, popP))) 
   
   }
 
