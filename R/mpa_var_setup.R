@@ -8,7 +8,7 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-calc_harvest_stochastic <- function(pars)  {
+mpa_var_setup <- function(pars)  {
 
   ncells <- pars[3]
   MPA_width <- pars[4]

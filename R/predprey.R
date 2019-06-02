@@ -5,29 +5,28 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-pred_prey <- function(t, values, pars){
+pred_prey <- function(values, pars){
   
-     ### Extract parameters
-     rx <- pars[1]
-     Kx <- pars[2]
-     ax <- pars[3]
-     hx <- pars[4]
-      c <- pars[5]
-      ay <- pars[6]
-      dp <- pars[7]
-      Kp <- pars[8]
-     hp <- pars[9]
-     Y <- 500
-  
-  ### Extract state variables
-  X <- values[1]
-  P <- values[2]
+  #  mrate_X <- pars[1]
+  # mrate_P <- pars[2]
+ # ncells <- pars[3]
+  #MPA_width <- pars[4]
+  hx <- pars[5]
+  hp <- pars[6]
+  rx <- pars[7]
+  Kx <- pars[8]/ncells
+  ax <- pars[9]
+  c <- pars[10]
+  ay <- pars[11]
+  dp <- pars[12]
+  Kp <- pars[13]/ncells
+  Y <- 500/ncells
   
   ### Equations
-  dXdt <- (rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X)
-  dPdt <- P*((c*((ax*X)+(ay*Y)))-dp)*(1-(P/Kp))-(hp*P)
+  dXdt_vec <- (rx*popX)*(1-popX/Kx)-(ax*popP)*(popX)-(hx*popX)
+  dPdt_vec <- P*((c*((ax*popX)+(ay*Y)))-dp)*(1-(popP/Kp))-(hp*popP)
   
-  return(list(c(dXdt, dPdt))) }
+  return(list(c(dXdt_vec, dPdt_vec))) }
 
 
 

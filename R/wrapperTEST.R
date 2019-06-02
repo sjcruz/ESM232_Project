@@ -7,31 +7,30 @@
 
 wrapper_modelTEST <- 
   
-  function(rx = 1.2, Kx = 100, ax = 0.03, hx = 0.65, hp = 0.32, c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, t0 = 0, t1 = 40, X0, P0, mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=4)
+  function(mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=0, hx = 0.65, hp = 0.32, rx = 1.2, Kx = 100, ax = 0.03,  c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, t0 = 0, t1 = 40, X0, P0) {
+  
+  pars <- c(mrate_X, mrate_P, ncells, MPA_width, hx, hp, rx, Kx, ax, c, ay, dp, Kp)
+   
+  ### Define values  
+  values <- c(X0, P0) 
     
-    {
+  ### Define time
+  time <- seq(t0, t1, by = 0.1)
 
-   pars <- c(rx, 
-             Kx,
-             ax,
-             hx,
-             hp,
-              c,
-             ay,
-             dp,
-             Kp,
-             mrate_X,
-             mrate_P,
-             ncells,
-             MPA_width)
-    
-    
-    ### Define time
-    time <- seq(t0, t1, by = 0.1)
-    values <- c(X0, P0) 
-    
-test <- lsoda(y = values, times = time, func = MPA_model, parms = pars) 
+  ### Run the MPA set up model and define initial variables
+  #######RENAME THIS MODEL AND GET RID OF MODEL SET UP
+  mpa_var_setup <- mpa_var_setup(pars=pars)
+  harvest_mpa_hx <- mpa_var_setup[1]
+  harvest_mpa_hp <- mpa_var_setup[2]
+  popX <- mpa_var_setup[3]
+  popP <- mpa_var_setup[4]
+  left.cell <- mpa_var_setup[5]
+  right.cell <- mpa_var_setup[6]
+  
+  # Run ode function      
+  test <- lsoda(y = values, times = time, func = run_mpa, parms = pars) 
   as.data.frame() 
+  
   #%>%
 #  magrittr::set_colnames(value = c("Time", "X", "P")) %>% 
 #  gather(Organism, Abundance, X, P) %>%

@@ -8,7 +8,12 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-calc_harvest <- function(hx, hp, ncells, MPA_width)  {
+calc_harvest <- function(pars)  {
+  
+  ncells <- pars[3]
+  MPA_width <- pars[4]
+  hx <- pars[5]
+  hp <- pars[6]
   
   harvest_mpa_hx <- vector(length=ncells)
   harvest_mpa_hx[] <- hx   

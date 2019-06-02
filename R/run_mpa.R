@@ -1,6 +1,6 @@
 
 
-MPA_model <- function(pars ) ###values and time are only necessayr for the ode not here, so take out
+run_mpa <- function(pars ) ###values and time are only necessayr for the ode not here, so take out
     {
   
   mrate_X <- pars[1]

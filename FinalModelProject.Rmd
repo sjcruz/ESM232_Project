@@ -60,21 +60,23 @@ both
 
 ```{r}
 
-source("R/wrapper.R")
+source("R/wrapperTEST.R")
+source("R/mpa_var_setup.R")
+source("R/run_mpa.R")
 source("R/predprey.R")
 source("R/extract.R")
-source("R/calc_harvest.R")
-source("R/mpa.R")
-source("R/wrapperTEST.R")
+
+
+
 
 # First call of the model to reach equilibrium
-start <- wrapper_model(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25)
+start_test <- wrapper_modelTEST(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25, MPA_width=0)
 
 # Extract final conditions 
 c(X1, P1) %<-%  extract_state_vars(start)
 
 
-testmpa <- wrapper_modelTEST(t0=0, t1 = 30, X0=X1, P0=P1)
+testmpa <- wrapper_modelTEST(t0=0, t1 = 30, X0=X1, P0=P1, MPA_width=4)
 
 
 
