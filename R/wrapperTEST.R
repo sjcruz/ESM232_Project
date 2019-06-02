@@ -18,17 +18,18 @@ wrapper_modelTEST <-
   time <- seq(t0, t1, by = 0.1)
 
   ### Run the MPA set up model and define initial variables
-  #######RENAME THIS MODEL AND GET RID OF MODEL SET UP
   mpa_var_setup <- mpa_var_setup(pars=pars)
-  harvest_mpa_hx <- mpa_var_setup[1]
-  harvest_mpa_hp <- mpa_var_setup[2]
-  popX <- mpa_var_setup[3]
-  popP <- mpa_var_setup[4]
-  left.cell <- mpa_var_setup[5]
-  right.cell <- mpa_var_setup[6]
+  harvest_mpa_hx <- mpa_var_setup[[1]]
+  harvest_mpa_hp <- mpa_var_setup[[2]]
+  popX <- mpa_var_setup[[3]]
+  popP <- mpa_var_setup[[4]]
+  left.cell <- mpa_var_setup[[5]]
+  right.cell <- mpa_var_setup[[6]]
   
+  pars_mpa <- list(mrate_X, mrate_P, harvest_mpa_hx, harvest_mpa_hp, popX, popP, left.cell, right.cell, rx, Kx, ax, c, ay, dp, Kp, hx, hp) 
+                
   # Run ode function      
-  test <- lsoda(y = values, times = time, func = run_mpa, parms = pars) 
+  test <- lsoda(y = values, times = time, func = run_mpa, parms = pars_mpa) %>%
   as.data.frame() 
   
   #%>%

@@ -67,6 +67,26 @@ source("R/predprey.R")
 source("R/extract.R")
 
 
+testing:
+mrate_X = 0.5
+mrate_P = 0.5
+ncells=10
+MPA_width=0
+hx = 0.65
+hp = 0.32
+rx = 1.2
+Kx = 100
+ax = 0.03
+c = 0.05
+ay = 0.03
+dp = 0.25
+Kp = 25
+t0 = 0
+t1 = 40
+t0=0
+t1 = 30
+X0 = 25
+P0 = 25
 
 
 # First call of the model to reach equilibrium

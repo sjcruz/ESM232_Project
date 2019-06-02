@@ -5,28 +5,29 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-pred_prey <- function(values, pars){
+pred_prey <- function(pars_mpa){
   
-  #  mrate_X <- pars[1]
-  # mrate_P <- pars[2]
- # ncells <- pars[3]
-  #MPA_width <- pars[4]
-  hx <- pars[5]
-  hp <- pars[6]
-  rx <- pars[7]
-  Kx <- pars[8]/ncells
-  ax <- pars[9]
-  c <- pars[10]
-  ay <- pars[11]
-  dp <- pars[12]
-  Kp <- pars[13]/ncells
+  harvest_mpa_hx <- pars_mpa[[3]]
+  harvest_mpa_hp <- pars_mpa[[4]]
+  popX <- pars_mpa[[5]]
+  popP <- pars_mpa[[6]]
+  
+  rx <- pars_mpa[[9]]
+  Kx <- pars_mpa[[10]]/ncells
+  ax <- pars_mpa[[11]]
+  c <- pars_mpa[[12]]
+  ay <- pars_mpa[[13]]
+  dp <- pars_mpa[[14]]
+  Kp <- pars_mpa[[15]]/ncells
+  hx <- pars_mpa[[16]]
+  hp <- pars_mpa[[17]]
   Y <- 500/ncells
   
   ### Equations
   dXdt_vec <- (rx*popX)*(1-popX/Kx)-(ax*popP)*(popX)-(hx*popX)
-  dPdt_vec <- P*((c*((ax*popX)+(ay*Y)))-dp)*(1-(popP/Kp))-(hp*popP)
+  dPdt_vec <- popP*((c*((ax*popX)+(ay*Y)))-dp)*(1-(popP/Kp))-(hp*popP)
   
-  return(list(c(dXdt_vec, dPdt_vec))) }
+  return(list(dXdt_vec, dPdt_vec)) }
 
 
 

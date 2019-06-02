@@ -1,25 +1,28 @@
 
 
-run_mpa <- function(pars ) ###values and time are only necessayr for the ode not here, so take out
+run_mpa <- function(pars_mpa) ###values and time are only necessayr for the ode not here, so take out
     {
   
-  mrate_X <- pars[1]
-  mrate_P <- pars[2]
-  ncells <- pars[3]
- # MPA_width <- pars[4]
-  hx <- pars[5]
-  hp <- pars[6]
-  rx <- pars[7]
-  Kx <- pars[8]
-  ax <- pars[9]
-  c <- pars[10]
-  ay <- pars[11]
-  dp <- pars[12]
-  Kp <- pars[13]
-  Y <- 500
+  mrate_X <- pars_mpa[[1]]
+  mrate_P <- pars_mpa[[2]]
+  harvest_mpa_hx <- pars_mpa[[3]]
+  harvest_mpa_hp <- pars_mpa[[4]]
+  popX <- pars_mpa[[5]] ## these somehow need to be be the new population sizes from the results of the end of this model
+  popP <- pars_mpa[[6]] ##
+  left.cell <- pars_mpa[[7]]
+  right.cell <- pars_mpa[[8]]
+  rx <- pars_mpa[[9]]
+  Kx <- pars_mpa[[10]]
+  ax <- pars_mpa[[11]]
+  c <- pars_mpa[[12]]
+  ay <- pars_mpa[[13]]
+  dp <- pars_mpa[[14]]
+  Kp <- pars_mpa[[15]]
+  hx <- pars_mpa[[16]]
+  hp <- pars_mpa[[17]]
 
   ### add in a pseudo sentivity analysis: 3 sizes: 10, 20, 30
-    
+
   leavingX<-mrate_X*popX
   leavingP<-mrate_P*popP
   
@@ -30,13 +33,11 @@ run_mpa <- function(pars ) ###values and time are only necessayr for the ode not
 
   #surplus production from the predator prey function
   
-  ##will this math work not as a vector?
-  surplus <- pred_prey(pars = pars, values= values) 
+  surplus <- pred_prey(pars = pars_mpa) 
   
   ##negative surpluses don't really know why
-  surplusX <- surplus[1]
-  surplusP <- surplus[2]
-  
+  surplusX <- surplus[[1]]
+  surplusP <- surplus[[2]]
   
   #catches = harvest rate in each cell times the population size 
   #basically how much are we catching at each time step
@@ -49,11 +50,11 @@ run_mpa <- function(pars ) ###values and time are only necessayr for the ode not
   popX <- popX + surplusX - catchesX - leavingX + arrivingX
   popP <- popP + surplusP - catchesP - leavingP + arrivingP
   
-  popXsum <- sum(popX)
-  popPsum <- sum(popP)
+  popX <- sum(popX)
+  popP <- sum(popP)
 
-  
-  return(list(c(popX, popP))) 
+  ### can someone explain to me the logic behind these numbers going into the new run for it and not getting rewritten by the parameters we bring in at the start of this function?
+  return(list(popX, popP)) 
   
   }
 
