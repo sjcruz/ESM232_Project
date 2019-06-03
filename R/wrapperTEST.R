@@ -18,7 +18,7 @@ wrapper_modelTEST <-
   time <- seq(t0, t1, by = 0.1)
 
   ### Run the MPA set up model and define initial variables
-  mpa_var_setup <- mpa_var_setup(pars=pars)
+  mpa_var_setup <- mpa_var_setup(pars=pars, values=values)
   harvest_mpa_hx <- mpa_var_setup[[1]]
   harvest_mpa_hp <- mpa_var_setup[[2]]
   popX <- mpa_var_setup[[3]]
@@ -26,16 +26,16 @@ wrapper_modelTEST <-
   left.cell <- mpa_var_setup[[5]]
   right.cell <- mpa_var_setup[[6]]
   
-  pars_mpa <- list(mrate_X, mrate_P, harvest_mpa_hx, harvest_mpa_hp, popX, popP, left.cell, right.cell, rx, Kx, ax, c, ay, dp, Kp, hx, hp) 
+  pars_mpa <- list(mrate_X, mrate_P, harvest_mpa_hx, harvest_mpa_hp, popX, popP, left.cell, right.cell, rx, Kx, ax, c, ay, dp, Kp, hx, hp, ncells) 
                 
   # Run ode function      
   test <- lsoda(y = values, times = time, func = run_mpa, parms = pars_mpa) %>%
   as.data.frame() 
   
+  ##will use this type of code after for tidy data 
   #%>%
 #  magrittr::set_colnames(value = c("Time", "X", "P")) %>% 
 #  gather(Organism, Abundance, X, P) %>%
 #  mutate(H = case_when(Organism == "X" ~ hx*Abundance, Organism == "P" ~ hp*Abundance))
 
- 
       }

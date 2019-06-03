@@ -8,7 +8,7 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-mpa_var_setup <- function(pars)  {
+mpa_var_setup <- function(pars, values=values)  {
 
   ncells <- pars[3]
   MPA_width <- pars[4]

@@ -5,13 +5,13 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-pred_prey <- function(pars_mpa){
+pred_prey <- function(time, values,pars_mpa){
   
+  ncells <- pars_mpa[[18]]
   harvest_mpa_hx <- pars_mpa[[3]]
   harvest_mpa_hp <- pars_mpa[[4]]
   popX <- pars_mpa[[5]]
   popP <- pars_mpa[[6]]
-  
   rx <- pars_mpa[[9]]
   Kx <- pars_mpa[[10]]/ncells
   ax <- pars_mpa[[11]]

@@ -19,7 +19,7 @@ library(zeallot)
 
 ```
 
-
+###Going through JC stuff 
 
 Run Model to Equilibrium
 ```{r}
@@ -57,8 +57,16 @@ both
 
 ```
 
+### Adding on MPA management
+
 
 ```{r}
+
+library(magrittr)
+library(tidyverse)
+library(deSolve)
+library(dplyr)
+library(zeallot)
 
 source("R/wrapperTEST.R")
 source("R/mpa_var_setup.R")
@@ -67,7 +75,7 @@ source("R/predprey.R")
 source("R/extract.R")
 
 
-testing:
+# these parameters are on the outside for testing:
 mrate_X = 0.5
 mrate_P = 0.5
 ncells=10
@@ -88,67 +96,39 @@ t1 = 30
 X0 = 25
 P0 = 25
 
-
 # First call of the model to reach equilibrium
+# this should be the same results as the above part with JC becuase there is no MPA
+# this is also where there is an issue I can't figure out
 start_test <- wrapper_modelTEST(hx = 0, hp = 0, t0=0, t1 = 30, X0 = 25, P0 = 25, MPA_width=0)
 
 # Extract final conditions 
 c(X1, P1) %<-%  extract_state_vars(start)
 
-
+# try it with an MPA width
 testmpa <- wrapper_modelTEST(t0=0, t1 = 30, X0=X1, P0=P1, MPA_width=4)
-
-
-
-
-
-
-
-rx = 1
-Kx = 100
-ax = 0.03
-hx = 0.65
-c = 0.05
-ay = 0.03
-dp = 0.25
-Kp = 25
-hp = 0.32
-t0 = 0
-t1 = 40
-
-pars <- c(rx, Kx, ax, hx, c, ay, dp, Kp, hp)
-values <- c(X1, P1) 
-time <- seq(t0, t1, by = 0.1)
-
-surplus <- pred_prey(pars = pars, values= values, t=time) %>%
-  extract2(1)
-
-surplusX <- surplus[1]
-surplusP <- surplus[2]
-  
-  
-  catchesX<- harvest_mpa_hx*popX
-  catchesP<- harvest_mpa_hp*popP
-
-
-
 
 ```
 
-goliath grouper, yellow snapper (main prey), parrotfish (subprey) 
+**Species we will use:**
+Predator (P) -> goliath grouper
+Prey (X) -> yellow snapper 
+Unessential Prey (Y) -> parrotfish 
 
-Issues:
-1. when to loop for the Mpa movement (in the mpa function one or the wrapper)
-2. have two mrates for the prey and predator, need to figure out what to do with that
+**Parameters:**
+goliah grouper growth rate (c) = 0.2 +- 0.03
+movement = 0.5 for both
 
-Things to rememeber/clean up:
+FINISHING FILLING THESE OUT. we looked some up already but we should probs agree on what we want them to be
 
-1. some things named as vectors when lists, make sure to go through and clean it all up to make it understandable
-2. goliah grouper growth rate (c) = 0.2 +- 0.03
-3. sensitiy analysis on: c, r, and hx, hp
-4. movement = 0.5 for both
+**Issues:**
+Error in func(time, state, parms, ...) : unused arguments (state, parms)
 
-Sensitivity Analysis:
+**Things to rememeber/clean up:**
+1. go back through and make sure the naming convention of things make sense. if it's saved as vec, is it really a vector
+2. meta data
+
+**Sensitivity Analysis:**
+We want to do it for c, r, and hx, hp
 
 
 

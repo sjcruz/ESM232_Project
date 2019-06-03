@@ -1,6 +1,6 @@
 
 
-run_mpa <- function(pars_mpa) ###values and time are only necessayr for the ode not here, so take out
+run_mpa <- function(time, values, pars_mpa) 
     {
   
   mrate_X <- pars_mpa[[1]]
@@ -50,11 +50,11 @@ run_mpa <- function(pars_mpa) ###values and time are only necessayr for the ode 
   popX <- popX + surplusX - catchesX - leavingX + arrivingX
   popP <- popP + surplusP - catchesP - leavingP + arrivingP
   
-  popX <- sum(popX)
-  popP <- sum(popP)
+  popXsum<- sum(popX)
+  popPsum <- sum(popP)
 
   ### can someone explain to me the logic behind these numbers going into the new run for it and not getting rewritten by the parameters we bring in at the start of this function?
-  return(list(popX, popP)) 
+  return(list(popXsum, popPsum)) 
   
   }
 
