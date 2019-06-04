@@ -7,28 +7,38 @@
 
 pred_prey <- function(time, values,pars_mpa){
   
-  ncells <- pars_mpa[[18]]
-  harvest_mpa_hx <- pars_mpa[[3]]
-  harvest_mpa_hp <- pars_mpa[[4]]
-  popX <- pars_mpa[[5]]
-  popP <- pars_mpa[[6]]
-  rx <- pars_mpa[[9]]
-  Kx <- pars_mpa[[10]]/ncells
-  ax <- pars_mpa[[11]]
-  c <- pars_mpa[[12]]
-  ay <- pars_mpa[[13]]
-  dp <- pars_mpa[[14]]
-  Kp <- pars_mpa[[15]]/ncells
-  hx <- pars_mpa[[16]]
-  hp <- pars_mpa[[17]]
-  Y <- 500/ncells
+  rx <- pars[1]
+  Kx <- pars[2]
+  ax <- pars[3]
+  hx <- pars[4]
+  c <- pars[5]
+  ay <- pars[6]
+  dp <- pars[7]
+  Kp <- pars[8]
+  hp <- pars[9]
+  Y <- 500
+  
+  X <- values[1]
+  P <- values[2]
   
   ### Equations
   dXdt_vec <- (rx*popX)*(1-popX/Kx)-(ax*popP)*(popX)-(hx*popX)
   dPdt_vec <- popP*((c*((ax*popX)+(ay*Y)))-dp)*(1-(popP/Kp))-(hp*popP)
   
-  return(list(dXdt_vec, dPdt_vec)) }
+  return(list(dXdt_vec, dPdt_vec))}
 
 
-
-
+run_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
+                      c = 0.05, ay = 0.03, dp = 0.25, Kp = 25,
+                      hp = 0.325, t0 = 0, t1 = 40, X0, P0){
+  # Define parameters
+  pars <- c(rx, Kx, ax, hx, c, ay, dp, Kp, hp)
+  # Define values
+  values <- c(X0, P0)
+  # Define time
+  time <- seq(t0, t1, by = 0.1)
+  lsoda(y = values, times = time, func = pred_prey, parms = pars) %>%
+    as.data.frame() %>%
+    magrittr::set_colnames(value = c("Time", "X", "P")) %>%
+    mutate(H_X = hx*X, H_P = hp*P)
+}
