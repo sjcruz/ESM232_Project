@@ -1,51 +1,21 @@
 
 
-spatial_P_X <- function(time, mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width, rx = 1.2, Kx = 100, ax = 0.03,  c = 0.05, 
-                        ay = 0.03, dp = 0.25, Kp = 25, variables) 
-    {
-  harvest_mpa_hx <- variables[[1]]
-  harvest_mpa_hp <- variables[[2]]
-  popX <- variables[[3]]
-  popP <- variables[[4]]
-  left.cell <- variables[[5]]
-  right.cell <- variables[[6]]
-  Kx <- Kx/ncells
-  Kp <- Kp/ncells
+run_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
+                        c = 0.05, ay = 0.03, dp = 0.25, Kp = 25,
+                        hp = 0.325, time = 40, X, P, ncells=10, MPA_width) {
+  out <- vectors_fun(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp, X=X, P=P)
   
-  Y <- 500/ncells
+  values <- list(X=out$X, P=out$P)
   
-  results<- data.frame(popXsum=NA, popPsum=NA, Xharsum=NA, Pharsum=NA)
+  pars <- list(rx=rx, Kx=Kx, ax=ax, hx=out$hx, c=c, ay=ay, dp=dp, Kp=Kp, 
+               hp=out$hp, ncells=ncells, MPA_width=MPA_width, l.cell=out$l.cell, r.cell=out$r.cell)
+  
+  results <- data.frame (X=NA, P=NA, H_X=NA, H_P=NA)
 
   for(t in c(1:time)) {
-  leavingX <- mrate_X*popX
-  leavingP <- mrate_P*popP
-  
-  #The number of immigrants is 1/2 those leaving cells to the left and 1/2 those leaving cells to the right. 
-  #The idea here is that individuals evely migrate to left and right cells
-  arrivingX <-0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
-  arrivingP <-0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
-
-  growthX <- (rx*popX)*(1-(popX/Kx))-(ax*popP)
-  growthP <- popP*((c*((ax*popX)+(ay*Y)))-dp)*(1-(popP/Kp))
-  
-  #catches = harvest rate in each cell times the population size 
-  #basically how much are we catching at each time step
-  
-  harvestX <- popX*harvest_mpa_hx
-  harvestP <- popP*harvest_mpa_hp
-  
-  #Now that we caught some fish and some migrated we update the population numbers
-  popX <- popX + growthX - harvestX - leavingX + arrivingX
-  popP <- popP + growthP - harvestP - leavingP + arrivingP
-  
-  popXsum<- sum(popX)
-  popPsum <- sum(popP)
-  
-  Xharsum <- sum(harvestX)
-  Pharsum <- sum(harvestP)
-  
-  res <- cbind(popXsum, popPsum, Xharsum, Pharsum)
-  results <- rbind(results, res)
+  pop <- pred_prey(values = values, pars=pars)%>%data.frame
+    
+  result <- rbind(results, pop)
   }
   return(results) 
   }

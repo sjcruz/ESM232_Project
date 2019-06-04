@@ -66,20 +66,16 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
   out <- harvest(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)
   hp <- out$hp
   hx <- out$hx
-  
   mrate <- 0.5
   results <- data.frame (Time=NA, X =NA, P =NA, H_X=NA, H_P=NA)
   
   time <- seq(t0, t1, by = 0.1)
   for (i in time) {
     
-    if( i = t0) {
-      
-    leavingX <- mrate*X
-    leavingP <- mrate*P
-    }
-    
-    else{
+    if( i == t0) {
+      leavingX <- mrate*X
+      leavingP <- mrate*P
+    } else{
       leavingX <- mrate*X_pop
       leavingP <- mrate*P_pop
     }
@@ -87,34 +83,29 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
     arrivingX <- 0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
     arrivingP <- 0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
     
-    if (i = t0) {
+    if (i == t0) {
       X <- X + ((rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X)) - leavingX + arrivingX
       P <- P + (P*((c*((ax*X)+(ay*Y)))-dp)*(1-(P/Kp))-(hp*P)) - leavingP + arrivingP
-      
+
       harX <- hx*X
       harP <- hp*P
       
       X_pop <- sum(X)
       P_pop <- sum(P) 
-    }
-    
-    else {
-   
-    X_pop <- X_pop + ((rx*X_pop)*(1-(X_pop/Kx))-(ax*X_pop)-(hx*X_pop)) - leavingX + arrivingX
-    P_pop <- P_pop + (P_pop*((c*((ax*X)+(ay*Y)))-dp)*(1-(P_pop/Kp))-(hp*P_pop)) - leavingP + arrivingP
+    } else {
+      X_pop <- X_pop + ((rx*X_pop)*(1-(X_pop/Kx))-(ax*X_pop)-(hx*X_pop)) - leavingX + arrivingX
+      P_pop <- P_pop + (P_pop*((c*((ax*X)+(ay*Y)))-dp)*(1-(P_pop/Kp))-(hp*P_pop)) - leavingP + arrivingP
   
-    X_pop <- sum(X_pop)
-    P_pop <- sum(P_pop)
+      X_pop <- sum(X_pop)
+      P_pop <- sum(P_pop)
     
-    harX <- hx*X_pop
-    harP <- hp*P_pop
-    
+      harX <- hx*X_pop
+      harP <- hp*P_pop
     }
-    
-  }
     out <- cbind(Time= i, X=X_pop, P=P_pop, H_X= sum(harX), H_P= sum(harP))%>%as.data.frame()
     
     results <- rbind(results, out)
+    }
   
   return(results[-1,])
   

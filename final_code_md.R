@@ -53,44 +53,50 @@ harvest <- function(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)  {
 
 MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
                       c = 0.05, ay = 0.03, dp = 0.25, Kp = 25,
-                      hp = 0.325, t0= 0, t1 = 40, X, P, ncells=10, MPA_width){
-  #setting up modeling space (vectors)
+                      hp = 0.325, t0= 0, t1 = 40, X, P, ncells=10, MPA_width=2){
+  
+  X.mat <- matrix(0, ncol = ncells, nrow=length(seq(t0, t1, by = 0.1)))
+  P.mat <- matrix(0, ncol = ncells, nrow=length(seq(t0, t1, by = 0.1)))
+  HX.mat <- matrix(0, ncol = ncells, nrow=length(seq(t0, t1, by = 0.1)))
+  HP.mat <- matrix(0, ncol = ncells, nrow=length(seq(t0, t1, by = 0.1)))
+  
   left.cell<- c(ncells, 1: (ncells-1))
   right.cell<- c(2: ncells, 1)
-  Kx <- Kx/ncells
+  
+  Kx<- Kx/ncells
   Kp <- Kp/ncells
-  X <- c(rep(X/ncells, length = ncells))
-  P <- c(rep(P/ncells, length = ncells))
-  Y <- 500/ncells
+#iniital populations 
+  X.mat[1,]<- X/ncells
+  P.mat[1,] <- P/ncells
+  Y <- c(rep(500/ncells, length=ncells))
   #putting MPAs in place 
   out <- harvest(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)
-  hp <- out$hp
-  hx <- out$hx
+  hp <- c(out$hp)
+  hx <- c(out$hx)
   
   mrate <- 0.5
-  results <- data.frame (Time=NA, X =NA, P =NA, H_X=NA, H_P=NA)
-  
+  #results <- data.frame (Time=NA, X =NA, P =NA, H_X=NA, H_P=NA)
   time <- seq(t0, t1, by = 0.1)
-  for (i in time) {
-    leavingX <- mrate*X
-    leavingP <- mrate*P
+  for (i in 2:nrow(X.mat)) {
+    leavingX <- mrate*X.mat[i-1,]
+    leavingP <- mrate*P.mat[i-1,]
   
     arrivingX <-0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
     arrivingP <-0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
    
-    X <- X + ((rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X)) + leavingX - arrivingX
-    P <- P + (P*((c*((ax*X)+(ay*Y)))-dp)*(1-(P/Kp))-(hp*P)) + leavingP - arrivingP
+    X.mat[i,] <- X.mat[i-1,] + ((rx*X.mat[i-1,])*(1-(X.mat[i-1,]/Kx))-(ax*P.mat[i-1,]*X.mat[i-1,])-(hx*X.mat[i-1,])) + leavingX - arrivingX
+    P.mat[i,] <- P.mat[i-1,] + (P.mat[i-1,]*((c*((ax*X.mat[i-1,])+(ay*Y)))-dp)*(1-(P.mat[i-1,]/Kp))-(hp*P.mat[i-1,])) + leavingP - arrivingP
     
-    harX <- hx*X
-    harP <- hp*P
+    HX.mat[i,] <- hx*X.mat[i-1,]
+    HP.mat[i,] <- hp*P.mat[i-1,]
     
-    X_pop <- sum(X)
-    P_pop <- sum(P)
+    #X_pop <- sum(X)
+    #P_pop <- sum(P)
     
-    out <- cbind(Time= i, X=X_pop, P=P_pop, H_X= sum(harX), H_P= sum(harP))%>%as.data.frame()
+    #out <- cbind(Time= i, X=X_pop, P=P_pop, H_X= sum(harX), H_P= sum(harP))%>%as.data.frame()
     
-    results <- rbind(results, out)
+    #results <- rbind(results, out)
   }
   
-  return(results[-1,])
+  return(list(X.mat, P.mat))
 }

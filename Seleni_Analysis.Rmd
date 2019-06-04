@@ -7,41 +7,40 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(deSolve)
+library(ggplot2)
+source("final_code.R")
+
 ```
 
 ```{r}
+start <- run_model(hx = 0, hp = 0, t1 = 30, X0 = 25, P0 = 25)
 
-source("R/run_mpa.R")
-source("R/mpa_var_setup.R")
+X1 <- tail(start$X, 1)
+P1 <- tail(start$P, 1)
+harvest_P <- run_model(hx = 0, t0 = 30, t1 = 70, X0 = X1, P0 = P1)
 
-mrate_X = 0.5
-mrate_P = 0.5
-ncells=10
-MPA_width=0
-hx = 0
-hp = 0
-rx = 1
-Kx = 100
-ax = 0.03
-c = 0.05
-ay = 0.03
-dp = 0.25
-Kp = 25
-X0 = 25
-P0 = 25
+X2 <- tail(harvest_P$X, 1)
+P2 <- tail(harvest_P$P, 1)
+harvest_X <- run_model(t0 = 70, t1 = 120, X0 = X2, P0 = P2)
 
-pars <- c(mrate_X, mrate_P, ncells, MPA_width, hx, hp, rx, Kx, ax, c, ay, dp, Kp)
-   
-values <- c(X0, P0) 
+X3 <- tail(harvest_X$X, 1)
+P3 <- tail(harvest_X$P, 1)
 
-variables <- vectors_fun(values = values, pars = pars)
+MPA <- MPA_model(hx = 0, hp = 0, t0= 120, t1 = 170, X=X3, P=X3, ncells=10, MPA_width=10)
 
-t1 <- spatial_P_X (time = 50, MPA_width= 0, variables = variables)
-
-plot(t1$popXsum, type="l")
-plot(t1$popPsum, type="l")
+X <- MPA[[1]]
+P <- MPA[[2]]
 
 
 
+model <- rbind(start, harvest_P, harvest_X, MPA)%>%
+  select(Time, X, P)%>%
+  tidyr::gather(key="Organism", value="Abundance", -Time)
+
+
+
+ggplot(model, aes(x=Time, y=Abundance, color=Organism))+geom_line()+theme_classic()
 ```
 
