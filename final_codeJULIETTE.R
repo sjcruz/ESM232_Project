@@ -54,21 +54,35 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx=0.65,
                       c = 0.05, ay = 0.03, dp = 0.25, Kp = 25,
                       hp = 0.325, t0= 0, t1 = 40, X, P, ncells=10, MPA_width){
   
+  harvest_hx <- c(rep(hx, length = ncells))
+  harvest_hx[sample(ncells, MPA_width, replace=FALSE)] <- 0  
+  hx <- harvest_hx
+  
+  harvest_hp <- harvest_hx
+  harvest_hp[harvest_hp == hx] <- hp
+  hp <- harvest_hp
+  
+  
   #setting up modeling space (vectors)
   left.cell<- c(ncells, 1: (ncells-1))
   right.cell<- c(2: ncells, 1)
-  Kx <- Kx/ncells
-  Kp <- Kp/ncells
+  Kx <- c(rep(Kx/ncells, length = ncells))
+  Kp <- c(rep(Kp/ncells, length =ncells))
   X <- c(rep(X/ncells, length = ncells))
   P <- c(rep(P/ncells, length = ncells))
-  Y <- 500/ncells
-  ax <- ax/ncells
-  ay <- ay/ncells
+  Y <- c(rep(500/ncells, length = ncells))
+  ax <- c(rep(ax, length = ncells))
+  ay <- c(rep(ay, length = ncells))
+  one <- c(rep(1, length = ncells))
+  rx <- c(rep(rx, length= ncells))
+  dp <- c(rep(dp, length= ncells))
+  
   
   #putting MPAs in place 
-  out <- harvest(hx=.65, ncells=10, MPA_width=0, hp=.32)
-  hp <- out$hp
-  hx <- out$hx
+ # out <- harvest(hx=0.65, ncells=10, MPA_width, hp=0.325)
+  #hp <- out$hp
+  #hx <- out$hx
+  
   mrate <- 0.5
   results <- data.frame (Time=NA, X =NA, P =NA, H_X=NA, H_P=NA)
   
@@ -80,9 +94,9 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx=0.65,
     
     arrivingX <- 0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
     arrivingP <- 0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
-
-    X <- X + (rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X) - leavingX + arrivingX
-    P <- P + P*(c*(ax*X+ay*Y)-dp)*(1-(P/Kp))-(hp*P)- leavingP + arrivingP
+    
+    X <- X + (rx*X)*(one-(X/Kx))-(ax*P*X)-(hx*X) - leavingX + arrivingX
+    P <- P + P*(c*(ax*X+ay*Y)-dp)*(one-(P/Kp))-(hp*P)- leavingP + arrivingP
 
     harX <- hx*X
     harP <- hp*P
