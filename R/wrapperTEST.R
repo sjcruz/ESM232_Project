@@ -7,7 +7,8 @@
 
 wrapper_modelTEST <- 
   
-  function(mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=0, hx = 0.65, hp = 0.32, rx = 1.2, Kx = 100, ax = 0.03,  c = 0.05, ay = 0.03, dp = 0.25, Kp = 25, t0 = 0, t1 = 40, X0, P0) {
+  function(mrate_X = 0.5, mrate_P = 0.5, ncells=10, MPA_width=0, hx = 0.65, hp = 0.32, rx = 1.2, Kx = 100, ax = 0.03,  c = 0.05, 
+           ay = 0.03, dp = 0.25, Kp = 25, t0 = 0, t1 = 40, X0, P0) {
   
   pars <- c(mrate_X, mrate_P, ncells, MPA_width, hx, hp, rx, Kx, ax, c, ay, dp, Kp)
    
@@ -15,7 +16,7 @@ wrapper_modelTEST <-
   values <- c(X0, P0) 
     
   ### Define time
-  time <- seq(t0, t1, by = 0.1)
+  time <-as.numeric( seq(t0, t1, by = 0.1))
 
   ### Run the MPA set up model and define initial variables
   mpa_var_setup <- mpa_var_setup(pars=pars, values=values)
@@ -25,6 +26,8 @@ wrapper_modelTEST <-
   popP <- mpa_var_setup[[4]]
   left.cell <- mpa_var_setup[[5]]
   right.cell <- mpa_var_setup[[6]]
+  
+  
   
   pars_mpa <- list(mrate_X, mrate_P, harvest_mpa_hx, harvest_mpa_hp, popX, popP, left.cell, right.cell, rx, Kx, ax, c, ay, dp, Kp, hx, hp, ncells) 
                 
@@ -38,4 +41,6 @@ wrapper_modelTEST <-
 #  gather(Organism, Abundance, X, P) %>%
 #  mutate(H = case_when(Organism == "X" ~ hx*Abundance, Organism == "P" ~ hp*Abundance))
 
-      }
+  }
+
+?lsoda

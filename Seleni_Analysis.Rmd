@@ -1,0 +1,47 @@
+---
+title: "Untitled"
+author: "Seleni Cruz"
+date: "June 3, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+source("R/run_mpa.R")
+source("R/mpa_var_setup.R")
+
+mrate_X = 0.5
+mrate_P = 0.5
+ncells=10
+MPA_width=0
+hx = 0
+hp = 0
+rx = 1
+Kx = 100
+ax = 0.03
+c = 0.05
+ay = 0.03
+dp = 0.25
+Kp = 25
+X0 = 25
+P0 = 25
+
+pars <- c(mrate_X, mrate_P, ncells, MPA_width, hx, hp, rx, Kx, ax, c, ay, dp, Kp)
+   
+values <- c(X0, P0) 
+
+variables <- vectors_fun(values = values, pars = pars)
+
+t1 <- spatial_P_X (time = 50, MPA_width= 0, variables = variables)
+
+plot(t1$popXsum, type="l")
+plot(t1$popPsum, type="l")
+
+
+
+```
+

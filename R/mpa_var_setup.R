@@ -8,8 +8,8 @@
 #' @author Seleni Cruz and Juliette Verstaen
 #' @return list with focal prey and predator abundance at each time interval specified 
 
-mpa_var_setup <- function(pars, values=values)  {
-
+vectors_fun <- function(values=values, pars)  {
+  
   ncells <- pars[3]
   MPA_width <- pars[4]
   hx <- pars[5]
@@ -39,6 +39,8 @@ mpa_var_setup <- function(pars, values=values)  {
   # create left and right cells that the fish and move into 
   left.cell<- c(ncells, 1: (ncells-1))
   right.cell<- c(2: ncells, 1)
+  
+  pars <- c(mrate_X, mrate_P, ncells, MPA_width, hx, hp, rx, Kx, ax, c, ay, dp, Kp)
   
   # all the necessary vectors with rates and fish in there to run the actual spatial mpa model
   return(list(harvest_mpa_hx, harvest_mpa_hp, popX, popP, left.cell, right.cell))
