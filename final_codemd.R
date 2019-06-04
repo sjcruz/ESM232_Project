@@ -43,17 +43,17 @@ run_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
 
 harvest <- function(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)  {
   harvest_hx <- c(rep(hx, length = ncells))
-  harvest_hx[sample(ncells, MPA_width, replace=FALSE)] <- 0  
+  harvest_hx[sample(ncells, MPA_width)] <- 0  
   harvest_hp <- harvest_hx
   harvest_hp[harvest_hp == hx] <- hp
   
   return(list(hx=harvest_hx, hp=harvest_hp))
 }
 
-MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx=0.65,
+
+MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
                       c = 0.05, ay = 0.03, dp = 0.25, Kp = 25,
                       hp = 0.325, t0= 0, t1 = 40, X, P, ncells=10, MPA_width){
-  
   #setting up modeling space (vectors)
   left.cell<- c(ncells, 1: (ncells-1))
   right.cell<- c(2: ncells, 1)
@@ -62,38 +62,59 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx=0.65,
   X <- c(rep(X/ncells, length = ncells))
   P <- c(rep(P/ncells, length = ncells))
   Y <- 500/ncells
-  ax <- ax/ncells
-  ay <- ay/ncells
-  
   #putting MPAs in place 
-  out <- harvest(hx=.65, ncells=10, MPA_width=0, hp=.32)
+  out <- harvest(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)
   hp <- out$hp
   hx <- out$hx
+  
   mrate <- 0.5
   results <- data.frame (Time=NA, X =NA, P =NA, H_X=NA, H_P=NA)
   
   time <- seq(t0, t1, by = 0.1)
   for (i in time) {
-
+    
+    if( i = t0) {
+      
     leavingX <- mrate*X
     leavingP <- mrate*P
+    }
+    
+    else{
+      leavingX <- mrate*X_pop
+      leavingP <- mrate*P_pop
+    }
     
     arrivingX <- 0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
     arrivingP <- 0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
-
-    X <- X + (rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X) - leavingX + arrivingX
-    P <- P + P*(c*(ax*X+ay*Y)-dp)*(1-(P/Kp))-(hp*P)- leavingP + arrivingP
-
-    harX <- hx*X
-    harP <- hp*P
-      
-    X_pop <- sum(X)
-    P_pop <- sum(P) 
     
+    if (i = t0) {
+      X <- X + ((rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X)) - leavingX + arrivingX
+      P <- P + (P*((c*((ax*X)+(ay*Y)))-dp)*(1-(P/Kp))-(hp*P)) - leavingP + arrivingP
+      
+      harX <- hx*X
+      harP <- hp*P
+      
+      X_pop <- sum(X)
+      P_pop <- sum(P) 
+    }
+    
+    else {
+   
+    X_pop <- X_pop + ((rx*X_pop)*(1-(X_pop/Kx))-(ax*X_pop)-(hx*X_pop)) - leavingX + arrivingX
+    P_pop <- P_pop + (P_pop*((c*((ax*X)+(ay*Y)))-dp)*(1-(P_pop/Kp))-(hp*P_pop)) - leavingP + arrivingP
+  
+    X_pop <- sum(X_pop)
+    P_pop <- sum(P_pop)
+    
+    harX <- hx*X_pop
+    harP <- hp*P_pop
+    
+    }
+    
+  }
     out <- cbind(Time= i, X=X_pop, P=P_pop, H_X= sum(harX), H_P= sum(harP))%>%as.data.frame()
     
     results <- rbind(results, out)
-    }
   
   return(results[-1,])
   
