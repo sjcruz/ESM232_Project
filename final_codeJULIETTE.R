@@ -41,41 +41,6 @@ run_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
     mutate(H_X= X*hx, H_P= P*hp)
 }
 
-
-scen1_sensitivity <- function (hx, hp, c, rx, dp, X0, P0, ax, ay, Kx, Kp, Y){
-  start <- run_model(hx = 0, hp = 0, t1 = 30, X0 = X0, P0 = P0)
-  
-  X1 <- tail(start$X, 1)
-  P1 <- tail(start$P, 1)
-  harvest_P <- run_model(hx = 0, t0 = 30, t1 = 70, X0 = X1, P0 = P1)
-  
-  X2 <- tail(harvest_P$X, 1)
-  P2 <- tail(harvest_P$P, 1)
-  harvest_X <- run_model(t0 = 70, t1 = 120, X0 = X2, P0 = P2)
-  
-  X3 <- tail(harvest_X$X, 1)
-  P3 <- tail(harvest_X$P, 1)
-  
-  stop_harvest_P <- run_model(hp = 0, t0 = 120, t1 = 140, X0 = X3, P0 = P3)
-  
-  X4 <- tail(stop_harvest_P$X, 1)
-  P4 <- tail(stop_harvest_P$P, 1)
-  
-  stop_harvest_X <- run_model(hx = 0, hp = 0, t0 = 140, t1 = 200, X0 = X4, P0 = P4)
-  
-  X5 <- tail(stop_harvest_X$X, 1)
-  P5 <- tail(stop_harvest_X$P, 1)
-  
-  sens <- rbind(start, harvest_P, harvest_X, stop_harvest_P, stop_harvest_X)%>%
-    select(X, P)%>%
-    summarise_all(funs(sum))
-}
-
-##########################################
-#NOT USING 
-
-
-
 harvest <- function(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)  {
   harvest_hx <- c(rep(hx, length = ncells))
   harvest_hx[sample(ncells, MPA_width, replace=FALSE)] <- 0  
@@ -89,21 +54,35 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx=0.65,
                       c = 0.05, ay = 0.03, dp = 0.25, Kp = 25,
                       hp = 0.325, t0= 0, t1 = 40, X, P, ncells=10, MPA_width){
   
+  harvest_hx <- c(rep(hx, length = ncells))
+  harvest_hx[sample(ncells, MPA_width, replace=FALSE)] <- 0  
+  hx <- harvest_hx
+  
+  harvest_hp <- harvest_hx
+  harvest_hp[harvest_hp == hx] <- hp
+  hp <- harvest_hp
+  
+  
   #setting up modeling space (vectors)
   left.cell<- c(ncells, 1: (ncells-1))
   right.cell<- c(2: ncells, 1)
-  Kx <- Kx/ncells
-  Kp <- Kp/ncells
+  Kx <- c(rep(Kx/ncells, length = ncells))
+  Kp <- c(rep(Kp/ncells, length =ncells))
   X <- c(rep(X/ncells, length = ncells))
   P <- c(rep(P/ncells, length = ncells))
-  Y <- 500/ncells
-  ax <- ax/ncells
-  ay <- ay/ncells
+  Y <- c(rep(500/ncells, length = ncells))
+  ax <- c(rep(ax, length = ncells))
+  ay <- c(rep(ay, length = ncells))
+  one <- c(rep(1, length = ncells))
+  rx <- c(rep(rx, length= ncells))
+  dp <- c(rep(dp, length= ncells))
+  
   
   #putting MPAs in place 
-  out <- harvest(hx=.65, ncells=10, MPA_width=0, hp=.32)
-  hp <- out$hp
-  hx <- out$hx
+ # out <- harvest(hx=0.65, ncells=10, MPA_width, hp=0.325)
+  #hp <- out$hp
+  #hx <- out$hx
+  
   mrate <- 0.5
   results <- data.frame (Time=NA, X =NA, P =NA, H_X=NA, H_P=NA)
   
@@ -115,9 +94,9 @@ MPA_model <- function(rx = 1, Kx = 100, ax = 0.03, hx=0.65,
     
     arrivingX <- 0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
     arrivingP <- 0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
-
-    X <- X + (rx*X)*(1-(X/Kx))-(ax*P*X)-(hx*X) - leavingX + arrivingX
-    P <- P + P*(c*(ax*X+ay*Y)-dp)*(1-(P/Kp))-(hp*P)- leavingP + arrivingP
+    
+    X <- X + (rx*X)*(one-(X/Kx))-(ax*P*X)-(hx*X) - leavingX + arrivingX
+    P <- P + P*(c*(ax*X+ay*Y)-dp)*(one-(P/Kp))-(hp*P)- leavingP + arrivingP
 
     harX <- hx*X
     harP <- hp*P

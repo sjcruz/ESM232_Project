@@ -1,0 +1,48 @@
+---
+title: "Untitled"
+author: "Seleni Cruz"
+date: "June 4, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(deSolve)
+library(magrittr)
+library(tidyr)
+library(ggplot2)
+```
+
+Simulating trophic downgrading 
+
+changed:
+- added ncells and made mpa width not 10 (i think that may have been why it was wonky? unless you were trying to simulate no harvest bit i think you would have just changed harvest rates)
+- added two id then statemets in the mpa model. reasoning:We can't sum the population at the end and use that for the next step because it is important to keep the population abundance in each cell because there needs to be build up within the mPAs thats the whole point.
+
+
+```{r}
+
+start <- run_model(hx = 0, hp = 0, t1 = 30, X0 = 50, P0 = 10)
+X1 <- tail (start, 1)[,2]
+P1 <- tail (start, 1)[,3]
+
+harvest_P <- run_model(hx = 0, t0 = 30, t1 = 60, X0 = X1, P0 = P1)
+X2 <- tail (harvest_P, 1)[,2]
+P2 <- tail (harvest_P, 1)[,3]
+
+harvest_X <- run_model(t0 = 60, t1 = 90, X0 = X2, P0 = P2)
+X3 <- tail (harvest_P, 1)[,2]
+P3 <- tail (harvest_P, 1)[,3]
+
+MPA <- MPA_model(X=X3, P=P3, MPA_width = 2, ncells=10, t0 = 90, t1 = 120)
+
+model <- rbind(start, harvest_P, harvest_X, MPA)%>%
+  select(Time, X, P)%>%
+  gather(key="Organism", value="Abundance", -Time)
+
+ggplot(model, aes(x=Time, y=Abundance, color= Organism))+geom_line()
+
+
+```
+
