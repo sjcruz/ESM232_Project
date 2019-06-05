@@ -41,6 +41,41 @@ run_model <- function(rx = 1, Kx = 100, ax = 0.03, hx = 0.65,
     mutate(H_X= X*hx, H_P= P*hp)
 }
 
+
+scen1_sensitivity <- function (hx, hp, c, rx, dp, X0, P0, ax, ay, Kx, Kp, Y){
+  start <- run_model(hx = 0, hp = 0, t1 = 30, X0 = X0, P0 = P0)
+  
+  X1 <- tail(start$X, 1)
+  P1 <- tail(start$P, 1)
+  harvest_P <- run_model(hx = 0, t0 = 30, t1 = 70, X0 = X1, P0 = P1)
+  
+  X2 <- tail(harvest_P$X, 1)
+  P2 <- tail(harvest_P$P, 1)
+  harvest_X <- run_model(t0 = 70, t1 = 120, X0 = X2, P0 = P2)
+  
+  X3 <- tail(harvest_X$X, 1)
+  P3 <- tail(harvest_X$P, 1)
+  
+  stop_harvest_P <- run_model(hp = 0, t0 = 120, t1 = 140, X0 = X3, P0 = P3)
+  
+  X4 <- tail(stop_harvest_P$X, 1)
+  P4 <- tail(stop_harvest_P$P, 1)
+  
+  stop_harvest_X <- run_model(hx = 0, hp = 0, t0 = 140, t1 = 200, X0 = X4, P0 = P4)
+  
+  X5 <- tail(stop_harvest_X$X, 1)
+  P5 <- tail(stop_harvest_X$P, 1)
+  
+  sens <- rbind(start, harvest_P, harvest_X, stop_harvest_P, stop_harvest_X)%>%
+    select(X, P)%>%
+    summarise_all(funs(sum))
+}
+
+##########################################
+#NOT USING 
+
+
+
 harvest <- function(hx=hx, ncells=ncells, MPA_width=MPA_width, hp=hp)  {
   harvest_hx <- c(rep(hx, length = ncells))
   harvest_hx[sample(ncells, MPA_width)] <- 0  

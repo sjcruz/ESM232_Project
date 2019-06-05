@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Final Report"
 author: "Seleni Cruz"
 date: "June 3, 2019"
 output: html_document
@@ -10,12 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(deSolve)
 library(ggplot2)
+library(sensitivity)
+library(foreach)
 source("final_code.R")
 
 ```
 
-```{r}
-start <- run_model(hx = 0, hp = 0, t1 = 30, X0 = 25, P0 = 25)
+Simulating trophic downgrading
+
+```{r echo=FALSE}
+start <- run_model(hx = 0, hp = 0, t1 = 30, X0 = 30, P0 = 50)
 
 X1 <- tail(start$X, 1)
 P1 <- tail(start$P, 1)
@@ -28,19 +32,213 @@ harvest_X <- run_model(t0 = 70, t1 = 120, X0 = X2, P0 = P2)
 X3 <- tail(harvest_X$X, 1)
 P3 <- tail(harvest_X$P, 1)
 
-MPA <- MPA_model(hx = 0, hp = 0, t0= 120, t1 = 170, X=X3, P=X3, ncells=10, MPA_width=10)
-
-X <- MPA[[1]]
-P <- MPA[[2]]
-
-
-
-model <- rbind(start, harvest_P, harvest_X, MPA)%>%
-  select(Time, X, P)%>%
+scen1 <- rbind(start, harvest_P, harvest_X)%>%
+   select(Time, X, P)%>%
   tidyr::gather(key="Organism", value="Abundance", -Time)
 
+ggplot(scen1, aes(x=Time, y=Abundance, color=Organism))+geom_line(size=3)+
+  scale_color_discrete(" ", labels=c("Predator", "Prey"))+
+  geom_vline(xintercept=30, linetype="dashed", color="black", size=1)+
+  geom_vline(xintercept=70, linetype="dashed", color="black", size=1)+
+  theme_classic()
 
-
-ggplot(model, aes(x=Time, y=Abundance, color=Organism))+geom_line()+theme_classic()
 ```
+
+First management interventon: first removing harvesting from predator and then prey 
+```{r}
+stop_harvest_P <- run_model(hp = 0, t0 = 120, t1 = 140, X0 = X3, P0 = P3)
+
+X4 <- tail(stop_harvest_P$X, 1)
+P4 <- tail(stop_harvest_P$P, 1)
+
+stop_harvest_X <- run_model(hx = 0, hp = 0, t0 = 140, t1 = 200, X0 = X4, P0 = P4)
+
+scen1 <- rbind(start, harvest_P, harvest_X, stop_harvest_P, stop_harvest_X)%>%
+   select(Time, X, P)%>%
+  tidyr::gather(key="Organism", value="Population", -Time)
+
+sum1 <- rbind(stop_harvest_P, stop_harvest_X)%>% 
+  summarise_at(vars(X, P, H_X, H_P), sum) %>% mutate(Name= "Pred")
+  
+
+ggplot(scen1, aes(x=Time, y=Population, color=Organism))+geom_line(size=3)+
+  scale_color_discrete(" ", labels=c("Predator", "Prey"))+
+  geom_vline(xintercept=30, linetype="dashed", color="black", size=1)+
+  geom_vline(xintercept=70, linetype="dashed", color="black", size=1)+
+   geom_vline(xintercept=120, linetype="dashed", color="black", size=1)+
+  theme_classic()
+
+ggsave("Pred_Prey.png", width = 8, height = 5, dpi=900)
+
+```
+
+sensitivity
+```{r}
+nsample=100
+
+hx <- 0.65
+hp <- 0.325
+c <- 0.05
+rx <- 1 
+dp <- 0.25
+ax= 0.03
+ay = 0.03
+
+
+ps1 <- cbind.data.frame(hx=rnorm(mean=hx, sd=0.1, n=nsample), hp=rnorm(mean=hp, sd=0.1, n=nsample), 
+                       c=rnorm(mean = c, sd= 0.05, n=nsample), rx=rnorm(mean=rx, sd=0.1, n=nsample),
+                       dp= rnorm(mean=dp, sd=0.1, n=nsample), X0=runif(min=15, max=100, n=nsample),
+                       P0=runif(min=15, max=30, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
+                       ay= rnorm(mean=ay, sd=0.05, n=nsample), Kx=runif(min=75, max=200, n=nsample),
+                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=400, max=500, n=nsample)  )
+
+ps2 <-  cbind.data.frame(hx=rnorm(mean=hx, sd=0.1, n=nsample), hp=rnorm(mean=hp, sd=0.1, n=nsample), 
+                       c=rnorm(mean = c, sd= 0.05, n=nsample), rx=rnorm(mean=rx, sd=0.1, n=nsample),
+                       dp= rnorm(mean=dp, sd=0.1, n=nsample), X0=runif(min=15, max=100, n=nsample),
+                       P0=runif(min=15, max=30, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
+                       ay= rnorm(mean=ay, sd=0.05, n=nsample), Kx=runif(min=75, max=200, n=nsample),
+                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=400, max=500, n=nsample)  )
+
+sens_PX <- sobol2007(model = NULL, ps1, ps2, nboot = 100)
+
+nsim <- nrow(sens_PX$X)
+
+results <- foreach(i = 1:nsim, .combine="rbind") %do% {
+  scen1_sensitivity(hx=as.numeric(sens_PX$X[i,"hx"]), 
+        hp=as.numeric(sens_PX$X[i,"hp"]), 
+        c=as.numeric(sens_PX$X[i,"c"]), 
+        rx=as.numeric(sens_PX$X[i,"rx"]), 
+        dp=as.numeric(sens_PX$X[i, "dp"]), 
+        X0=as.numeric(sens_PX$X[i,"X0"]), 
+        P0=as.numeric(sens_PX$X[i,"P0"]), 
+        ax=as.numeric(sens_PX$X[i,"ax"]), 
+        ay=as.numeric(sens_PX$X[i,"ay"]),
+        Kx=as.numeric(sens_PX$X[i,"Kx"]),
+        Kp=as.numeric(sens_PX$X[i,"Kp"]),
+        Y=as.numeric(sens_PX$X[i,"Y"]))
+  }
+
+
+sens_PX <- tell(sens_PX, results$X)
+# loot at results
+sens_PX$S
+sens_PX$T
+
+sens_PX <- tell(sens_PX, results$P)
+# loot at results
+sens_PX$S
+sens_PX$T
+```
+
+Second management interventon: first removing harvesting from prey and then predator 
+```{r}
+stop_harvest_X <- run_model(hx = 0, t0 = 120, t1 = 140, X0 = X3, P0 = P3)
+
+X4 <- tail(stop_harvest_X$X, 1)
+P4 <- tail(stop_harvest_X$P, 1)
+
+stop_harvest_P <- run_model(hp = 0, hx = 0, t0 = 140, t1 = 200, X0 = X4, P0 = P4)
+
+
+scen1 <- rbind(start, harvest_P, harvest_X, stop_harvest_X, stop_harvest_P)%>%
+   select(Time, X, P)%>%
+  tidyr::gather(key="Organism", value="Population", -Time)
+
+sum2 <- rbind(stop_harvest_X, stop_harvest_P)%>% 
+  summarise_at(vars(X, P, H_X, H_P), sum) %>% mutate(Name= "Prey")
+
+ggplot(scen1, aes(x=Time, y=Population, color=Organism))+geom_line(size=3)+
+  scale_color_discrete(" ", labels=c("Predator", "Prey"))+
+  geom_vline(xintercept=30, linetype="dashed", color="black", size=1)+
+  geom_vline(xintercept=70, linetype="dashed", color="black", size=1)+
+   geom_vline(xintercept=120, linetype="dashed", color="black", size=1)+
+  theme_classic()
+
+ggsave("Prey_pred.png", width = 8, height = 5, dpi=900)
+
+```
+
+
+simulating MPA 
+
+```{r}
+hp. <- 0.325 
+hx <- 0.65
+
+MPA<- foreach(mpa = seq(0,1, 0.1), .combine = rbind)%do%{
+  hp_default <- 0.325 
+  hx_default <- 0.65
+  hp <- hp_default * (1-mpa)
+  hx <- hp_default * (1-mpa)
+  
+  res <- run_model(hp=hp, hx=hx, t0=120, t1=200, X0=X3, P0=P3)
+  
+  results <- res%>% mutate(MPA=mpa)
+}
+
+down <- rbind(start, harvest_P, harvest_X) %>% select(Time, X, P)
+
+fifty <- MPA%>% filter(MPA==0.5)%>%
+  select(Time, X, P)%>%rbind(down)%>%
+  tidyr::gather(key="Organism", value="Population", -Time)
+
+ggplot(fifty, aes(x=Time, y=Population, color=Organism))+geom_line(size=3)+
+  scale_color_discrete(" ", labels=c("Predator", "Prey"))+
+  geom_vline(xintercept=30, linetype="dashed", color="black", size=1)+
+  geom_vline(xintercept=70, linetype="dashed", color="black", size=1)+
+   geom_vline(xintercept=120, linetype="dashed", color="black", size=1)+
+  theme_classic()
+
+ggsave("MPA_50.png", width = 8, height = 5, dpi=900)  
+
+
+fifty <- MPA%>% filter(MPA==1)%>%
+  select(Time, X, P)%>%rbind(down)%>%
+  tidyr::gather(key="Organism", value="Population", -Time)
+
+ggplot(fifty, aes(x=Time, y=Population, color=Organism))+geom_line(size=3)+
+  scale_color_discrete(" ", labels=c("Predator", "Prey"))+
+  geom_vline(xintercept=30, linetype="dashed", color="black", size=1)+
+  geom_vline(xintercept=70, linetype="dashed", color="black", size=1)+
+   geom_vline(xintercept=120, linetype="dashed", color="black", size=1)+
+  theme_classic()
+
+ggsave("MPA_100.png", width = 8, height = 5, dpi=900)  
+
+
+```
+
+
+```{r}
+sum3 <- MPA%>% group_by(MPA)%>% 
+  summarise_at(vars(X, P, H_X, H_P), sum) %>% rename(Name= MPA)%>%
+  rbind(sum1, sum2)%>%  
+  tidyr::gather(key = "Organism", value = "Population", X, P, -Name) %>%
+  tidyr::gather(key = "Org", value = "Harvest", H_X, H_P, -Name) 
+
+ggplot(sum3, aes(x = Name, y = Population, fill = Organism)) +
+  geom_bar(stat = "identity", position = position_stack())+
+  labs(x="Scenarios")+
+  scale_fill_discrete(" ", labels=c("Predator", "Prey"))+
+  theme_classic()
+   
+ggsave("population.png", width = 8, height = 5, dpi=900)  
+
+ggplot(sum3, aes(x = Name, y = Harvest, fill = Organism)) +
+  geom_bar(stat = "identity", position = position_stack())+
+  labs(x="Scenarios")+
+  scale_fill_discrete(" ", labels=c("Predator", "Prey"))+
+  theme_classic()
+   
+ggsave("harvest.png", width = 8, height = 5, dpi=900)  
+
+```
+
+
+
+
+
+
+
+
 
