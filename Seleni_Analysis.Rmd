@@ -74,30 +74,30 @@ ggsave("Pred_Prey.png", width = 8, height = 5, dpi=900)
 
 sensitivity
 ```{r}
-nsample=100
+nsample <- 200
 
 hx <- 0.65
 hp <- 0.325
 c <- 0.05
 rx <- 1 
 dp <- 0.25
-ax= 0.03
-ay = 0.03
+ax <- 0.03
+ay <- 0.03
 
 
-ps1 <- cbind.data.frame(hx=rnorm(mean=hx, sd=0.1, n=nsample), hp=rnorm(mean=hp, sd=0.1, n=nsample), 
-                       c=rnorm(mean = c, sd= 0.05, n=nsample), rx=rnorm(mean=rx, sd=0.1, n=nsample),
+ps1 <- cbind.data.frame(hx=rnorm(mean=hx, sd=0.2, n=nsample), hp=rnorm(mean=hp, sd=0.2, n=nsample), 
+                       c=rnorm(mean = c, sd= 0.1, n=nsample), rx=rnorm(mean=rx, sd=0.2, n=nsample),
                        dp= rnorm(mean=dp, sd=0.1, n=nsample), X0=runif(min=15, max=100, n=nsample),
-                       P0=runif(min=15, max=30, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
+                       P0=runif(min=15, max=100, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
                        ay= rnorm(mean=ay, sd=0.05, n=nsample), Kx=runif(min=75, max=200, n=nsample),
-                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=400, max=500, n=nsample)  )
+                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=300, max=600, n=nsample)  )
 
-ps2 <-  cbind.data.frame(hx=rnorm(mean=hx, sd=0.1, n=nsample), hp=rnorm(mean=hp, sd=0.1, n=nsample), 
-                       c=rnorm(mean = c, sd= 0.05, n=nsample), rx=rnorm(mean=rx, sd=0.1, n=nsample),
+ps2 <-  cbind.data.frame(hx=rnorm(mean=hx, sd=0.2, n=nsample), hp=rnorm(mean=hp, sd=0.2, n=nsample), 
+                       c=rnorm(mean = c, sd= 0.1, n=nsample), rx=rnorm(mean=rx, sd=0.2, n=nsample),
                        dp= rnorm(mean=dp, sd=0.1, n=nsample), X0=runif(min=15, max=100, n=nsample),
-                       P0=runif(min=15, max=30, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
+                       P0=runif(min=15, max=100, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
                        ay= rnorm(mean=ay, sd=0.05, n=nsample), Kx=runif(min=75, max=200, n=nsample),
-                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=400, max=500, n=nsample)  )
+                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=300, max=600, n=nsample)  )
 
 sens_PX <- sobol2007(model = NULL, ps1, ps2, nboot = 100)
 
