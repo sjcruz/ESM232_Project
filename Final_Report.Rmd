@@ -117,7 +117,7 @@ ggplot(scen1, aes(x=Time, y=Population, color=Organism))+geom_line(size=3)+
 
 Second management interventon: first removing harvesting from prey and then predator 
 
-The second management scenrio simulated the protection of prey first and then predator (Figure 5). 
+The second management scenrio simulated the protection of prey first and then predator (Figure 3). 
 ```{r echo=FALSE}
 stop_harvest_X <- run_model(hx = 0, t0 = 90, t1 = 120, X0 = X3, P0 = P3)
 
@@ -155,7 +155,7 @@ Third management intervention: simulating syncronized closure to both predator a
 
 We simulated combined closures in the form of marine proteted areas (MPAs) by removing harvesting. For example a marine protected area that covers 50% of the area is simulated by removing 50% of the haverst rate for both predator and prey. While we initally wanted to make this part of the model spatial, area represented by a series of vectors) we were not able to do so using ODE since inital values of ODE cannot be vectors but rather single values. 
 
-MPAs were simulated from 0 to 100% in 10% increments. Figure 6 and 7 present 50% and 100% closures, respectively. 
+MPAs were simulated from 0 to 100% in 10% increments. Figure 4 and 5 present 50% and 100% closures, respectively. 
 ```{r echo=FALSE}
 
 MPA <- MPA_sim(hp=0.325 , hx=0.65, X3=X3, P3=P3)
@@ -215,6 +215,7 @@ sum3 <- MPA%>% group_by(MPA)%>%
 
 ggplot(sum3, aes(x = Name, y = Population, fill = Organism)) +
   geom_bar(stat = "identity", position = position_stack())+
+  labs(subtitle = "Figure 6: Adundance of predator and prey")+
   labs(x="Scenarios")+
   scale_fill_discrete(" ", labels=c("Predator", "Prey"))+
   theme_classic()
@@ -223,6 +224,7 @@ ggplot(sum3, aes(x = Name, y = Population, fill = Organism)) +
 
 ggplot(sum3, aes(x = Name, y = Harvest, fill = Organism)) +
   geom_bar(stat = "identity", position = position_stack())+
+   labs(subtitle = "Figure 7: Harvest of predator and prey")+
   labs(x="Scenarios")+
   scale_fill_discrete(" ", labels=c("Predator", "Prey"))+
   theme_classic()
@@ -233,10 +235,10 @@ ggplot(sum3, aes(x = Name, y = Harvest, fill = Organism)) +
 
 Sensitivity 
 
-We also conduted sensitivity analysis of the model parameters using Sobol for management scenario 1. 
+We also conduted sensitivity analysis of the model parameters using Sobol for management scenario 1. When we ran the analyis with all variables, the model was most sensitive to initial population of both predator and prey (X0 and P0). When we removed these variables to test for sesnitivity for other parameters, Sobol returned NAN values.
 ```{r echo=FALSE}
+#Sensitivity of ll variables 
 nsample <- 200
-
 hx <- 0.65
 hp <- 0.325
 c <- 0.05
@@ -244,19 +246,61 @@ rx <- 1
 dp <- 0.25
 ax <- 0.03
 ay <- 0.03
-
-
 ps1 <- cbind.data.frame(hx=rnorm(mean=hx, sd=0.2, n=nsample), hp=rnorm(mean=hp, sd=0.2, n=nsample), 
                        c=rnorm(mean = c, sd= 0.1, n=nsample), rx=rnorm(mean=rx, sd=0.2, n=nsample),
-                       dp= rnorm(mean=dp, sd=0.1, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
-                       ay= rnorm(mean=ay, sd=0.05, n=nsample))
-
+                       dp= rnorm(mean=dp, sd=0.1, n=nsample), X0=runif(min=15, max=100, n=nsample),
+                       P0=runif(min=15, max=100, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
+                       ay= rnorm(mean=ay, sd=0.05, n=nsample), Kx=runif(min=75, max=200, n=nsample),
+                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=300, max=600, n=nsample)  )
 ps2 <-  cbind.data.frame(hx=rnorm(mean=hx, sd=0.2, n=nsample), hp=rnorm(mean=hp, sd=0.2, n=nsample), 
                        c=rnorm(mean = c, sd= 0.1, n=nsample), rx=rnorm(mean=rx, sd=0.2, n=nsample),
-                       dp= rnorm(mean=dp, sd=0.1, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
-                       ay= rnorm(mean=ay, sd=0.05, n=nsample))
+                       dp= rnorm(mean=dp, sd=0.1, n=nsample), X0=runif(min=15, max=100, n=nsample),
+                       P0=runif(min=15, max=100, n=nsample), ax= rnorm(mean=ax, sd=0.05, n=nsample),
+                       ay= rnorm(mean=ay, sd=0.05, n=nsample), Kx=runif(min=75, max=200, n=nsample),
+                       Kp=runif(min=20, max=80, n=nsample), Y=runif(min=300, max=600, n=nsample)  )
+sens_PX <- sobol2007(model = NULL, ps1, ps2)
+nsim <- nrow(sens_PX$X)
 
-sens_PX <- sobol2007(model = NULL, ps1, ps2, nboot = 100)
+results <- foreach(i = 1:nsim, .combine="rbind") %do% {
+  scen1_sensitivity(hx=as.numeric(sens_PX$X[i,"hx"]), 
+        hp=as.numeric(sens_PX$X[i,"hp"]), 
+        c=as.numeric(sens_PX$X[i,"c"]), 
+        rx=as.numeric(sens_PX$X[i,"rx"]), 
+        dp=as.numeric(sens_PX$X[i, "dp"]), 
+        X0=as.numeric(sens_PX$X[i,"X0"]), 
+        P0=as.numeric(sens_PX$X[i,"P0"]), 
+        ax=as.numeric(sens_PX$X[i,"ax"]), 
+        ay=as.numeric(sens_PX$X[i,"ay"]),
+        Kx=as.numeric(sens_PX$X[i,"Kx"]),
+        Kp=as.numeric(sens_PX$X[i,"Kp"]),
+        Y=as.numeric(sens_PX$X[i,"Y"]))
+  }
+sens_PX <- tell(sens_PX, results$X)
+# loot at results
+sens_PX$S
+sens_PX$T
+sens_PX <- tell(sens_PX, results$P)
+# loot at results
+sens_PX$S
+sens_PX$T
+```
+
+
+```{r echo=FALSE}
+nsample <- 200
+
+
+ps1 <- cbind.data.frame(hx=rnorm(mean=0.65, sd=0.2, n=nsample), hp=rnorm(mean=0.325, sd=0.2, n=nsample), 
+                       c=rnorm(mean = 0.05, sd= 0.1, n=nsample), rx=rnorm(mean=1, sd=0.2, n=nsample),
+                       dp= rnorm(mean=0.25, sd=0.1, n=nsample), ax= rnorm(mean=0.03, sd=0.05, n=nsample),
+                       ay= rnorm(mean=0.03, sd=0.05, n=nsample))
+
+ps2 <-  cbind.data.frame(hx=rnorm(mean=0.65, sd=0.2, n=nsample), hp=rnorm(mean=0.325, sd=0.2, n=nsample), 
+                       c=rnorm(mean = 0.05, sd= 0.1, n=nsample), rx=rnorm(mean=1, sd=0.2, n=nsample),
+                       dp= rnorm(mean=0.25, sd=0.1, n=nsample), ax= rnorm(mean=0.03, sd=0.05, n=nsample),
+                       ay= rnorm(mean=0.03, sd=0.05, n=nsample))
+
+sens_PX <- sobol2007(model = NULL, ps1, ps2)
 
 nsim <- nrow(sens_PX$X)
 
@@ -265,18 +309,13 @@ results <- foreach(i = 1:nsim, .combine="rbind") %do% {
                     hp=as.numeric(sens_PX$X[i,"hp"]), 
                     c=as.numeric(sens_PX$X[i,"c"]), 
                     rx=as.numeric(sens_PX$X[i,"rx"]), 
-                    dp=as.numeric(sens_PX$X[i, "dp"]), 
-                    X0=30, 
-                    P0=50, 
+                    dp=as.numeric(sens_PX$X[i, "dp"]),
                     ax=as.numeric(sens_PX$X[i,"ax"]), 
-                    ay=as.numeric(sens_PX$X[i,"ay"]),
-                    Kx=100,
-                    Kp=25,
-                    Y=500)
+                    ay=as.numeric(sens_PX$X[i,"ay"]))
   }
 
 
-sens_PX <- tell(sens_PX, results$X)
+sens_PX <- sensitivity::tell(sens_PX, results$X)
 # look at results
 sens_PX$S
 sens_PX$T
@@ -287,6 +326,12 @@ sens_PX$S
 sens_PX$T
 ```
 
+Key take aways   
+1. Predator first then prey recovery is still widely used in fisheries management.    
+2. Our results show that in some cases this is the least optimal management intervention to achieve fisheries productivity.    
+3. Implementation of syncronized closures can outperform other intervnetions, although there are several factors to consider that are not included in this short analysis.    
+
+References
 
 
 

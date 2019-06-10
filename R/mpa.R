@@ -1,59 +1,23 @@
+#' Marine protectes area simulation
+#' Computes the change in both predator and prey abundance
+#' @param t time used for the ODE function
+#' @param values initial population of predator and prey
+#' @param pars starting parameters include initial predator and prey abundance (# indivduals), predator and prey carrying capacity (# indivduals), predator and prey growth rates (yˆ-1), predator and prey harvest rates (yˆ-1), nondynamic prey abundance (#indiviudals), predator mortality rate (yˆ-1), predation rate on focal prey and nondynamic prey (# individualsˆ-1*yˆ-1), and the predator converstion rate of prey (prey/predator)
+#' @author Seleni Cruz and Juliette Verstaen
+#' @return Prey and predator abundance at each time interval 
 
 
-MPA_model <- function(pars ) ###values and time are only necessayr for the ode not here, so take out
-    {
+MPA_sim <- function (hp, hx, X3, P3, t0){
   
-  mrate_X <- pars[1]
-  mrate_P <- pars[2]
-  ncells <- pars[3]
- # MPA_width <- pars[4]
-  hx <- pars[5]
-  hp <- pars[6]
-  rx <- pars[7]
-  Kx <- pars[8]
-  ax <- pars[9]
-  c <- pars[10]
-  ay <- pars[11]
-  dp <- pars[12]
-  Kp <- pars[13]
-  Y <- 500
-
-  ### add in a pseudo sentivity analysis: 3 sizes: 10, 20, 30
+  MPA<- foreach(mpa = seq(0,1, 0.1), .combine = rbind)%do%{
+    hp_default <- 0.325 
+    hx_default <- 0.65
+    hp.mpa <- hp_default * (1-mpa)
+    hx.mpa <- hp_default * (1-mpa)
     
-  leavingX<-mrate_X*popX
-  leavingP<-mrate_P*popP
-  
-  #The number of immigrants is 1/2 those leaving cells to the left and 1/2 those leaving cells to the right. 
-  #The idea here is that individuals evely migrate to left and right cells
-  arrivingX<-0.5*leavingX[left.cell]+ 0.5*leavingX[right.cell]
-  arrivingP<-0.5*leavingP[left.cell]+ 0.5*leavingP[right.cell]
-
-  #surplus production from the predator prey function
-  
-  ##will this math work not as a vector?
-  surplus <- pred_prey(pars = pars, values= values) 
-  
-  ##negative surpluses don't really know why
-  surplusX <- surplus[1]
-  surplusP <- surplus[2]
-  
-  
-  #catches = harvest rate in each cell times the population size 
-  #basically how much are we catching at each time step
-  
-  catchesX <- harvest_mpa_hx*popX
-  catchesP <- harvest_mpa_hp*popP
-  
-  
-  #Now that we caught some fish and some migrated we update the population numbers
-  popX <- popX + surplusX - catchesX - leavingX + arrivingX
-  popP <- popP + surplusP - catchesP - leavingP + arrivingP
-  
-  popXsum <- sum(popX)
-  popPsum <- sum(popP)
-
-  
-  return(list(c(popX, popP))) 
-  
+    res <- run_model(hp=hp.mpa, hx=hx.mpa, t0=90, t1=200, X0=X3, P0=P3)
+    
+    results <- res%>% mutate(MPA=mpa)
   }
-
+  return (MPA)
+}
