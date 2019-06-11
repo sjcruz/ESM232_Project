@@ -19,7 +19,7 @@ source("R/sensitivity.R")
 source("R/mpa.R")
 ```
 
-Selecting generalist redator and prey
+Selecting generalist predator and prey
 For the simulations we used general predator and prey charactieristics, as used in @samhouriRapidDirectRecoveries2017 (Table 1). 
 
 ```{r, echo= FALSE}
@@ -153,7 +153,7 @@ ggplot(scen1, aes(x=Time, y=Population, color=Organism))+geom_line(size=3)+
 
 Third management intervention: simulating syncronized closure to both predator and prey
 
-We simulated combined closures in the form of marine proteted areas (MPAs) by removing harvesting. For example a marine protected area that covers 50% of the area is simulated by removing 50% of the haverst rate for both predator and prey. While we initally wanted to make this part of the model spatial, area represented by a series of vectors) we were not able to do so using ODE since inital values of ODE cannot be vectors but rather single values. 
+We simulated combined closures in the form of marine proteted areas (MPAs) by removing harvesting. For example a marine protected area that covers 50% of the area is simulated by removing 50% of the haverst rate for both predator and prey. While we initally wanted to make this part of the model spatial, area represented by a series of vectors, we were not able to do so using ODE since inital values of ODE cannot be vectors but rather single values. 
 
 MPAs were simulated from 0 to 100% in 10% increments. Figure 4 and 5 present 50% and 100% closures, respectively. 
 ```{r echo=FALSE}
